@@ -1,7 +1,7 @@
 # Worker des commentaires anonymes de Mon Skyblog (D1 + Turnstile).
 #
 # La base D1 doit être créée dans l'Union européenne (région `eeur`) :
-#   npx wrangler@4.168.0 d1 create mon-skyblog-comments --location=eeur
+#   npx wrangler@4.168.0 d1 create mon-skyblog-comments-eu --location=eeur
 # En CI, le workflow remplace ce placeholder par la valeur de la variable
 # GitHub `D1_DATABASE_ID` avant les migrations et le déploiement. En local, le
 # placeholder suffit pour `wrangler dev` (D1 locale).
@@ -17,7 +17,7 @@ workers_dev = true
 
 [[d1_databases]]
 binding = "DB"
-database_name = "mon-skyblog-comments"
+database_name = "mon-skyblog-comments-eu"
 database_id = "REMPLACER_PAR_D1_DATABASE_ID"
 migrations_dir = "migrations"
 

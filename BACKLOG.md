@@ -71,7 +71,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 
 ## 4. Questions ouvertes / actions humaines
 
-- [ ] **Créer les ressources Cloudflare** (D-09) : base D1 `mon-skyblog-comments` en UE, widget
+- [ ] **Créer les ressources Cloudflare** (D-09) : base D1 `mon-skyblog-comments-eu` en UE, widget
       Turnstile, token API Cloudflare (Workers Scripts:Edit + D1:Edit), secrets Worker
       `TURNSTILE_SECRET` et `ADMIN_TOKEN`.
 - [ ] **Renseigner les secrets/variables GitHub** : `CLOUDFLARE_API_TOKEN`,

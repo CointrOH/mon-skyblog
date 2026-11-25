@@ -5,7 +5,7 @@ Backend des commentaires **anonymes** de Mon Skyblog : un Worker Cloudflare
 adresse email, publication immédiate. Budget 0 €.
 
 - Worker : `mon-skyblog-comments` (`src/index.js`)
-- Base D1 : `mon-skyblog-comments`, région **`eeur`** (Union européenne)
+- Base D1 : `mon-skyblog-comments-eu`, région **`eeur`** (Union européenne)
 - Migrations : `migrations/`
 - Tests : `node --test worker/test` (depuis la racine du dépôt)
 
@@ -18,7 +18,7 @@ dans `worker/` : `npx wrangler@4.168.0` suffit (version épinglée et testée).
 ```bash
 cd worker
 npx wrangler@4.168.0 login       # une seule fois
-npx wrangler@4.168.0 d1 create mon-skyblog-comments --location=eeur
+npx wrangler@4.168.0 d1 create mon-skyblog-comments-eu --location=eeur
 ```
 
 La commande affiche un `database_id` : le renseigner dans la **variable GitHub**
@@ -35,7 +35,7 @@ npx wrangler@4.168.0 d1 list
 ```
 
 Équivalent dashboard : **Storage & Databases → D1 → Create database**, nom
-`mon-skyblog-comments`, localisation **Eastern Europe (EEUR)**.
+`mon-skyblog-comments-eu`, localisation **Eastern Europe (EEUR)**.
 
 ## 2. Créer le widget Turnstile
 
