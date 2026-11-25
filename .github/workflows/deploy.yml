@@ -5,11 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Droits minimaux requis pour publier sur GitHub Pages.
+# Moindre privilège : le job de build ne lit que le dépôt. Les droits de
+# publication sur Pages sont redéfinis uniquement au niveau du job `deploy`.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Un seul déploiement Pages à la fois, sans annuler un déploiement en cours.
 concurrency:
@@ -23,34 +22,50 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # Les valeurs sont passées par `env:` (jamais interpolées dans le script
+      # shell) puis exposées aux steps suivants via `$GITHUB_OUTPUT`.
+      # On n'utilise pas le contexte `env` alimenté implicitement par
+      # `$GITHUB_ENV` : `${{ env.* }}` n'est pas documenté comme lisant ces
+      # variables, ce qui ferait retomber silencieusement `base` à `/`.
       - name: Compute site URL and base path
+        id: config
+        env:
+          SITE_URL_OVERRIDE: ${{ vars.SITE_URL }}
+          BASE_PATH_OVERRIDE: ${{ vars.BASE_PATH }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
-          if [ -n "${{ vars.SITE_URL }}" ]; then
-            SITE_URL="${{ vars.SITE_URL }}"
+          if [ -n "$SITE_URL_OVERRIDE" ]; then
+            site_url="$SITE_URL_OVERRIDE"
           else
-            SITE_URL="https://${{ github.repository_owner }}.github.io"
+            site_url="https://${REPO_OWNER}.github.io"
           fi
 
-          if [ -n "${{ vars.BASE_PATH }}" ]; then
-            BASE_PATH="${{ vars.BASE_PATH }}"
-          elif [[ "${{ github.event.repository.name }}" == *.github.io ]]; then
-            BASE_PATH="/"
+          if [ -n "$BASE_PATH_OVERRIDE" ]; then
+            base_path="$BASE_PATH_OVERRIDE"
+          elif [[ "${REPO_NAME,,}" == *.github.io ]]; then
+            base_path="/"
           else
-            BASE_PATH="/${{ github.event.repository.name }}"
+            base_path="/${REPO_NAME}"
           fi
 
-          echo "SITE_URL=$SITE_URL" >> "$GITHUB_ENV"
-          echo "BASE_PATH=$BASE_PATH" >> "$GITHUB_ENV"
+          {
+            printf 'site_url=%s\n' "$site_url"
+            printf 'base_path=%s\n' "$base_path"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build with Astro
         uses: withastro/action@v6
         env:
-          SITE_URL: ${{ env.SITE_URL }}
-          BASE_PATH: ${{ env.BASE_PATH }}
+          SITE_URL: ${{ steps.config.outputs.site_url }}
+          BASE_PATH: ${{ steps.config.outputs.base_path }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
