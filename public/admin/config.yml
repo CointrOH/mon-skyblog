@@ -8,7 +8,7 @@ backend:
   name: github
   # PLACEHOLDER n°1 : remplacer "owner/repo" par le dépôt GitHub réel du site
   # (ex. "sebastienzam/skyblog"). Voir docs/decap-oauth.md.
-  repo: owner/repo
+  repo: SebastienZam/mon-skyblog
   branch: main
   # PLACEHOLDER n°2 : origine du service OAuth de production (Cloudflare Worker
   # type sveltia-cms-auth), SANS chemin ni slash final, ex. :
