@@ -61,6 +61,11 @@ publiques.
 6. **Sécurité et reproductibilité.** Versions épinglées, `npm ci` depuis le lockfile, aucun secret
    committé, `/admin` en `noindex`, `local_backend` réservé à localhost. L'audit npm est documenté
    honnêtement (voir §6).
+7. **Médias base-aware.** Decap insère des chemins absolus (`/images/uploads/...`). Le pipeline
+   Markdown unified (`@astrojs/markdown-remark`) et le plugin rehype
+   `src/utils/rehype-base-images.mjs` préfixent au rendu les `src` d'images et `href` internes avec
+   le `base` du site (racine ou `/mon-skyblog`), sans modifier le Markdown stocké dans le dépôt.
+   Seuls les aperçus d'images dans l'interface d'administration restent absolus.
 
 ## 4. Historique des tâches et commits
 
@@ -127,7 +132,7 @@ rejet, avec explication de la cause puis correction (pas d'improvisation) :
 | **Identité du dépôt et du site** | Remplacer `repo: owner/repo` et `base_url` (placeholders) ; définir le domaine (`SITE_URL`) et la source Pages (GitHub Actions) | **Avant mise en ligne** |
 | **Validation navigateur** | Aucun navigateur exploitable dans l'environnement de build : recette visuelle manuelle (voir §8) — responsive 320–375 px / 800×600 / desktop, reduced-motion, pause du marquee au clavier, focus, webring | Avant validation finale |
 | **Audit npm** | 7 (prod) / 11 (total) alertes `high` transitives, sans correctif amont dans les versions épinglées ; réévaluer à chaque montée de version de Decap, ne pas forcer de changement majeur | Suivi régulier |
-| **Médias et base de projet** | `public_folder: /images/uploads` absolu : images cassées sous une base de projet (`/repo`) ; options : domaine personnalisé / page utilisateur, ou adaptation des chemins | Avant publication de médias |
+| **Médias et base de projet** | Réglé pour les pages publiées (réécriture base-aware au rendu via `rehype-base-images.mjs`) ; seuls les aperçus d'images dans l'interface admin restent absolus et peuvent ne pas s'afficher sous une base de projet | Suivi mineur |
 | **Page article et `cover`** | Le `cover` du frontmatter est géré par les cartes d'accueil mais pas affiché en tête d'article (non bloquant) | Confort / évolution |
 | **Worker OAuth** | Dépendance d'infrastructure à maintenir (mises à jour de sécurité, quotas, disponibilité Cloudflare) ; épingler la version déployée | Suivi régulier |
 | **Accès GitHub** | Decap exige un accès en push ; retirer les anciens collaborateurs ; envisager `publish_mode: editorial_workflow` et/ou des protections de branche | Avant ouverture aux éditeurs |

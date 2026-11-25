@@ -30,12 +30,13 @@ administration auto-hébergée en `/admin/` (aucun CDN).
 | [Astro](https://astro.build) | **7.4.13** | Générateur de site statique |
 | [Decap CMS](https://decapcms.org) (`decap-cms-app`) | **3.18.0** | Interface d'administration auto-hébergée |
 | React / React DOM (peer de Decap) | **19.3.1** | Dépendances de l'interface admin |
+| `@astrojs/markdown-remark` | **7.3.10** | Pipeline Markdown unified (réécriture base-aware des médias/liens) |
 | `decap-server` (dev) | **3.11.6** | Proxy d'écriture locale pour le CMS |
 | Node.js | **≥ 22.23.4** (développé avec 24.22.2) | Requis par Astro 7 ; `decap-server` exige ≥ 20 |
 | npm | **≥ 9.6.5** (développé avec 11.19.1) | Gestionnaire de paquets |
 
-Aucune dépendance au-delà de ces paquets : pas d'intégration Astro supplémentaire, pas de police
-distante, pas de bibliothèque tierce côté public.
+Aucune autre dépendance que celles listées : pas de police distante, pas de bibliothèque tierce
+ni de JS côté public.
 
 ## Démarrage rapide
 
@@ -114,6 +115,7 @@ src/
 │   └── skyblog.css            # Feuille globale unique du thème (sections commentées)
 └── utils/
     ├── base.ts                # withBase() : préfixe les liens internes par le base path
+    ├── rehype-base-images.mjs # Réécrit les chemins absolus du Markdown (images, liens)
     └── slug.ts                # Conversion identifiant de contenu → slug d'URL
 ```
 
@@ -265,10 +267,11 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 ## Limitations connues
 
-- **Médias sous une base de projet** : `public_folder: /images/uploads` (Decap) écrit des chemins
-  absolus ; sous une base de projet GitHub Pages (`/mon-repo`), les images référencées dans le
-  Markdown ne sont pas préfixées. Options : domaine personnalisé / page utilisateur (base `/`), ou
-  adaptation des chemins (évolution future possible).
+- **Médias** : Decap écrit des chemins absolus (`/images/uploads/...`). Ils sont réécrits au rendu
+  par le plugin rehype `src/utils/rehype-base-images.mjs` : images et liens internes écrits en
+  Markdown fonctionnent à la racine comme sous `/mon-skyblog`. Limite résiduelle : les **aperçus
+  d'images dans l'interface du CMS** restent absolus et peuvent ne pas s'afficher sous une base de
+  projet — le contenu publié, lui, est correct.
 - **Éléments de démonstration** : compteur de visites fictif, livre d'or et commentaires fictifs —
   tous explicitement étiquetés ; aucun formulaire n'est connecté, aucune donnée n'est collectée.
 - **Page article** : le `cover` du frontmatter est géré par les cartes d'accueil mais pas encore

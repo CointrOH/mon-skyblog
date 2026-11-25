@@ -1,4 +1,6 @@
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
+import { rehypeBasePath } from './src/utils/rehype-base-images.mjs';
 
 // URL publique du site, utilisée par Astro (`site`).
 // - En CI : fournie par le workflow GitHub Pages (`SITE_URL`).
@@ -24,6 +26,13 @@ const base = normalizeBase(process.env.BASE_PATH);
 export default defineConfig({
   site,
   base,
+  markdown: {
+    // Pipeline unified (au lieu du processeur Sätteri par défaut d'Astro 7)
+    // afin de préfixer les chemins absolus du Markdown (`/images/uploads/...`
+    // insérés par Decap, liens internes) avec le `base` du site. Voir
+    // `src/utils/rehype-base-images.mjs`.
+    processor: unified({ rehypePlugins: [[rehypeBasePath, { base }]] }),
+  },
   legacy: {
     collectionsBackwardsCompat: true,
   },

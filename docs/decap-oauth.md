@@ -364,12 +364,10 @@ Après avoir renseigné `repo` et `base_url` (et déployé le worker) :
 
 - **Médias et base de projet GitHub Pages** : `media_folder: public/images/uploads` et
   `public_folder: /images/uploads` du CMS produisent des chemins **absolus**
-  (`/images/uploads/...`). Si le site est publié sous une base de projet (`https://<owner>.github.io/<repo>/`),
-  ces chemins ne sont pas préfixés par la base et les images peuvent être cassées. Options :
-  publier sur un **domaine personnalisé** ou une **page utilisateur** (`<owner>.github.io`, base `/`),
-  ou adapter le `public_folder` et préfixer les chemins d'images (à traiter finement : le rendu
-  Astro n'ajoute pas automatiquement la base aux images Markdown). Ce point relève d'une évolution
-  future possible.
+  (`/images/uploads/...`). Les pages publiées sont corrigées au rendu par le plugin rehype
+  `src/utils/rehype-base-images.mjs` (préfixage avec le `base` du site, à la racine comme sous un
+  sous-dossier). Limite résiduelle : les **aperçus d'images dans l'interface d'administration**
+  utilisent le chemin absolu et peuvent ne pas s'afficher sous une base de projet.
 - **Pas de prévisualisation serveur** : Decap CMS est une interface statique ; la prévisualisation
   intégrée est côté client/site, il n'y a pas de rendu serveur du Markdown.
 - **Dépendance d'infrastructure** : le worker OAuth doit être maintenu (mises à jour de sécurité,
