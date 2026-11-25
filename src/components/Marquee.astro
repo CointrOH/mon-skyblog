@@ -8,13 +8,23 @@ const {
 } = Astro.props;
 ---
 
-<!-- Défilement en animation CSS uniquement (aucune balise défilante HTML) ;
-     le texte est dupliqué pour boucler, et une version statique est donnée aux
-     lecteurs d'écran via .sr-only. -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee__track">
-    <span class="marquee__item">{text}</span>
-    <span class="marquee__item">{text}</span>
+<div class="marquee-widget">
+  <!-- Contrôle de pause (WCAG 2.2.2), en CSS pur et accessible au clavier :
+       l'input reste focusable mais est visuellement masqué, le label sert de
+       bouton visible et reçoit l'indicateur de focus. Case cochée = défilé figé. -->
+  <input type="checkbox" id="pause-defilement" class="marquee__toggle" />
+  <label for="pause-defilement" class="marquee__pause">
+    <span class="marquee__pause-label marquee__pause-label--pause">⏸ Pause du défilé</span>
+    <span class="marquee__pause-label marquee__pause-label--play">▶ Reprendre le défilé</span>
+  </label>
+
+  <!-- Piste purement décorative : aucun élément focusable dans ce sous-arbre. -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span class="marquee__item">{text}</span>
+      <span class="marquee__item">{text}</span>
+    </div>
   </div>
+
+  <p class="sr-only">{text}</p>
 </div>
-<p class="sr-only">{text}</p>
