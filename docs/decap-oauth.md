@@ -186,18 +186,21 @@ Puis **redéployer/sauvegarder** le worker pour appliquer les variables.
 
 ### 3.4 Configurer Decap CMS (`public/admin/config.yml`)
 
-Le bloc `backend` doit renseigner le dépôt réel et l'origine du worker. Les placeholders actuels
-du dépôt sont à remplacer :
+Le bloc `backend` renseigne le dépôt réel et l'origine du worker. **Configuration actuelle du
+dépôt** (valeurs publiques, aucun secret) :
 
 ```yaml
 backend:
   name: github
-  repo: <owner>/<repo>                                   # dépôt réel du site
+  repo: CointrOH/mon-skyblog                              # dépôt de production
   branch: main
-  base_url: https://sveltia-cms-auth.<compte>.workers.dev  # origine du worker, sans slash final
+  base_url: https://sveltia-cms-auth.sebastien-zambernardi.workers.dev  # origine du worker
   auth_endpoint: auth                                     # chemin /auth du worker
-  # auth_scope: public_repo                               # option : si le dépôt est public
+  # auth_scope : sans effet avec une GitHub App
 ```
+
+Pour une nouvelle installation (autre compte, autre domaine), remplacez `repo`, `base_url` et
+`ALLOWED_DOMAINS` par vos valeurs ; le reste de la procédure est inchangé.
 
 Points d'attention :
 
@@ -388,9 +391,10 @@ Après avoir renseigné `repo` et `base_url` (et déployé le worker) :
   (Pull requests).
 - **Sécurité = celle du worker et de GitHub** : ce document ne garantit pas la sécurité de
   l'infrastructure ; il décrit la configuration attendue et les vérifications à effectuer.
-- **Aucune valeur réelle dans ce dépôt** : il n'existe ici ni OAuth App, ni GitHub App, ni worker
-  déployé, ni secret. Les placeholders ne permettent pas de se connecter en production tant que
-  le propriétaire n'a pas réalisé la procédure.
+- **Aucun secret dans ce dépôt** : `repo` et `base_url` sont des valeurs publiques présentes dans
+  `public/admin/config.yml` ; le client secret et les identifiants de l'app restent dans les
+  variables Cloudflare du worker. Une nouvelle installation (nouveau worker, nouvel app, rotation
+  de secret) suit la procédure de ce document.
 
 ---
 
