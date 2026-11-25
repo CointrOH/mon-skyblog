@@ -1,0 +1,45 @@
+---
+interface GuestbookEntry {
+  message: string;
+  author: string;
+}
+
+interface Props {
+  entries?: GuestbookEntry[];
+}
+
+const {
+  entries = [
+    {
+      message: 'Trop bien ton blog ! Continue comme ça.',
+      author: '— xX_darkangel_Xx, 12 juin 2005',
+    },
+    {
+      message: 'Je passe par le webring. Il en est à combien, ton compteur ?',
+      author: '— le visiteur du 56k, 18 juin 2005',
+    },
+    {
+      message: 'Ajoute-moi dans tes liens, je te rends la pareille.',
+      author: '— une ancienne du forum, 2 juillet 2005',
+    },
+  ],
+} = Astro.props;
+---
+
+<section class="widget" id="livre-dor" aria-labelledby="livre-dor-titre">
+  <h2 class="widget__title" id="livre-dor-titre">Livre d'or</h2>
+  <ul class="guestbook">
+    {
+      entries.map((entry) => (
+        <li>
+          <p class="guestbook__message">« {entry.message} »</p>
+          <p class="guestbook__author">{entry.author}</p>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="widget__note">
+    Livre d'or de démonstration : aucun message n'est enregistré et aucun formulaire n'est
+    connecté.
+  </p>
+</section>

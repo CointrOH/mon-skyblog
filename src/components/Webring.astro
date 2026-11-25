@@ -1,0 +1,35 @@
+---
+// Seuls liens externes des pages publiques (hors Markdown) : ce sont des sites
+// réels, ouverts dans un nouvel onglet avec rel="noopener noreferrer".
+const rings = [
+  { label: 'Neocities', href: 'https://neocities.org' },
+  { label: "Cameron's World", href: 'https://www.cameronsworld.net' },
+  { label: 'Wiby, moteur de recherche rétro', href: 'https://wiby.me' },
+  { label: 'The Old Net', href: 'https://theoldnet.com' },
+];
+---
+
+<section class="widget" id="webring" aria-labelledby="webring-titre">
+  <h2 class="widget__title" id="webring-titre">Webring</h2>
+  <p class="widget__note">Quelques anneaux et musées du web d'avant (liens externes) :</p>
+  <ul class="webring">
+    {
+      rings.map((ring) => (
+        <li>
+          <a
+            class="webring__external"
+            href={ring.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {ring.label}
+            <span class="webring__mark" aria-hidden="true">
+              ↗
+            </span>
+            <span class="sr-only"> (nouvelle fenêtre)</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

@@ -1,0 +1,23 @@
+---
+import { withBase } from '../utils/base.ts';
+
+interface Props {
+  siteName?: string;
+  tagline?: string;
+}
+
+const {
+  siteName = 'Mon Skyblog',
+  tagline = "Journal rétro d'un webmaster nostalgique — depuis 2005",
+} = Astro.props;
+---
+
+<div class="banner">
+  <p class="banner__kicker">
+    <span class="banner__star" aria-hidden="true">★</span>
+    Le site officiel du webmaster
+    <span class="banner__star" aria-hidden="true">★</span>
+  </p>
+  <p class="banner__title"><a href={withBase('/')}>{siteName}</a></p>
+  <p class="banner__tagline">{tagline}</p>
+</div>

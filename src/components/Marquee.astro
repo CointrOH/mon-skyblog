@@ -1,0 +1,20 @@
+---
+interface Props {
+  text?: string;
+}
+
+const {
+  text = "★ Bienvenue sur mon Skyblog ★ N'oublie pas de signer le livre d'or ★",
+} = Astro.props;
+---
+
+<!-- Défilement en animation CSS uniquement (aucune balise défilante HTML) ;
+     le texte est dupliqué pour boucler, et une version statique est donnée aux
+     lecteurs d'écran via .sr-only. -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <span class="marquee__item">{text}</span>
+    <span class="marquee__item">{text}</span>
+  </div>
+</div>
+<p class="sr-only">{text}</p>

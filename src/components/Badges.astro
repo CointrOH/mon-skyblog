@@ -1,0 +1,38 @@
+---
+interface Props {
+  underConstruction?: boolean;
+}
+
+const { underConstruction = true } = Astro.props;
+---
+
+<section class="widget" aria-labelledby="badges-titre">
+  <h2 class="widget__title" id="badges-titre">Badges</h2>
+  <ul class="badges">
+    <li class="badge badge--yellow">Best viewed in 800×600</li>
+    <li class="badge badge--cyan">HTML 4.01 / Notepad</li>
+    <li class="badge badge--black">Made on a 56k</li>
+    <li class="badge badge--pink">Sign my guestbook</li>
+  </ul>
+
+  {
+    underConstruction && (
+      <p class="construction">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 28 28"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <rect x="0.5" y="8" width="27" height="12" fill="#ffe600" stroke="#1b1b1b" />
+          <path d="M2 9 L7 9 L3 19 L0 19 Z" fill="#1b1b1b" />
+          <path d="M11 9 L16 9 L12 19 L8 19 Z" fill="#1b1b1b" />
+          <path d="M20 9 L25 9 L21 19 L17 19 Z" fill="#1b1b1b" />
+          <rect x="11" y="1" width="6" height="6" fill="#1b1b1b" />
+        </svg>
+        <span>Site en construction — comme en 2005.</span>
+      </p>
+    )
+  }
+</section>

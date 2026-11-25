@@ -1,0 +1,20 @@
+---
+interface Props {
+  visits?: number;
+  label?: string;
+}
+
+const { visits = 1337, label = 'Compteur factice' } = Astro.props;
+const formatted = visits.toLocaleString('fr-FR');
+const digits = String(visits).padStart(6, '0').split('');
+---
+
+<section class="widget" aria-labelledby="compteur-titre">
+  <h2 class="widget__title" id="compteur-titre">Visiteurs</h2>
+  <p class="counter" aria-hidden="true">
+    {digits.map((digit) => <span class="counter__digit">{digit}</span>)}
+  </p>
+  <p class="counter__label">
+    <strong>{label}</strong> : {formatted} visites (chiffre inventé, comme en 2005).
+  </p>
+</section>

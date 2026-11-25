@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../utils/base.ts';
+import { entryIdToSlug } from '../utils/slug.ts';
+
+interface Props {
+  article: CollectionEntry<'blog'>;
+}
+
+const { article } = Astro.props;
+const url = withBase(`/blog/${entryIdToSlug(article.id)}/`);
+const cover = article.data.cover ? withBase(article.data.cover) : undefined;
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+});
+---
+
+<article class="post-card">
+  <h2 class="post-card__title"><a href={url}>{article.data.title}</a></h2>
+  <p class="post-card__meta">
+    <time datetime={article.data.date.toISOString()}>
+      {dateFormatter.format(article.data.date)}
+    </time>
+    {' — par '}
+    {article.data.author}
+  </p>
+
+  {
+    cover && (
+      <img
+        class="post-card__cover"
+        src={cover}
+        alt={`Illustration de l'article « ${article.data.title} »`}
+        loading="lazy"
+      />
+    )
+  }
+
+  <p class="post-card__description">{article.data.description}</p>
+
+  {
+    article.data.tags.length > 0 && (
+      <ul class="tag-list" aria-label="Tags de l'article">
+        {article.data.tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <p><a class="post-card__more" href={url}>Lire la suite →</a></p>
+</article>

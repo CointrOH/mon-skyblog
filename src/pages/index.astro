@@ -1,78 +1,80 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { withBase } from '../utils/base.ts';
-import { entryIdToSlug } from '../utils/slug.ts';
+import PostCard from '../components/PostCard.astro';
+import VisitCounter from '../components/VisitCounter.astro';
+import Guestbook from '../components/Guestbook.astro';
+import Webring from '../components/Webring.astro';
+import Badges from '../components/Badges.astro';
 
 const articles = (await getCollection('blog'))
   .filter((article) => (import.meta.env.PROD ? !article.data.draft : true))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-// Heure neutralisée : on n'affiche qu'une date de publication, en français.
-const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
-  dateStyle: 'long',
-  timeZone: 'UTC',
-});
 ---
 
 <BaseLayout
   title="Mon Skyblog"
-  description="Journal rétro d'un webmaster nostalgique : chroniques, bricolages HTML et souvenirs du web des années 2000."
+  description="Journal rétro d'un webmaster nostalgique : chroniques du web des années 2000, bricolages HTML et souvenirs de 56k."
 >
   <h1>Mon Skyblog</h1>
-  <p>
+
+  <p class="home-intro">
     Bienvenue sur ce journal rétro. Ici, on parle du web d'avant les réseaux sociaux : des pages
-    personnelles, du HTML écrit à la main et des ambiances colorées.
+    personnelles, du HTML écrit à la main, des compteurs de visites et des livres d'or. Prends un
+    cookie (virtuel), et n'oublie pas de signer le livre d'or.
   </p>
 
-  {
-    articles.length === 0 ? (
-      <p>Aucun article publié pour le moment.</p>
-    ) : (
-      <ul class="article-list">
-        {articles.map((article) => (
-          <li>
-            <article>
-              <h2>
-                <a href={withBase(`/blog/${entryIdToSlug(article.id)}/`)}>{article.data.title}</a>
-              </h2>
-              <p class="meta">
-                <time datetime={article.data.date.toISOString()}>
-                  {dateFormatter.format(article.data.date)}
-                </time>
-                {' — '}
-                {article.data.author}
-              </p>
-              <p>{article.data.description}</p>
-            </article>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  <div class="home-layout">
+    <section id="articles" aria-labelledby="articles-titre">
+      <h2 class="section-title" id="articles-titre">Les derniers billets</h2>
+
+      {
+        articles.length === 0 ? (
+          <p class="panel">Aucun article publié pour le moment.</p>
+        ) : (
+          <ul class="post-list">
+            {articles.map((article) => (
+              <li>
+                <PostCard article={article} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    <aside class="sidebar" aria-label="Colonne latérale">
+      <section class="widget" id="profil" aria-labelledby="profil-titre">
+        <h2 class="widget__title" id="profil-titre">Le webmaster</h2>
+        <div class="profile">
+          <svg
+            class="profile__avatar"
+            viewBox="0 0 16 16"
+            width="72"
+            height="72"
+            role="img"
+            aria-label="Avatar pixel du webmaster"
+          >
+            <rect width="16" height="16" fill="#b2ebf2" />
+            <rect x="3" y="3" width="10" height="10" fill="#ffd1e8" />
+            <rect x="5" y="6" width="2" height="2" fill="#1b1b1b" />
+            <rect x="9" y="6" width="2" height="2" fill="#1b1b1b" />
+            <rect x="6" y="10" width="4" height="1" fill="#a1004f" />
+          </svg>
+          <div>
+            <p>
+              Webmaster depuis 2005 : je code à la main dans Notepad, j'écoute du rock et je
+              collectionne les GIF de dragons. Ce blog est mon carnet de bord.
+            </p>
+            <p class="profile__signature">— Le Webmaster, depuis 2005</p>
+          </div>
+        </div>
+      </section>
+
+      <VisitCounter />
+      <Guestbook />
+      <Webring />
+      <Badges />
+    </aside>
+  </div>
 </BaseLayout>
-
-<style>
-  .article-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .article-list li + li {
-    border-top: 1px solid var(--border);
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-  }
-
-  .article-list h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.4rem;
-  }
-
-  .meta {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin: 0 0 0.5rem;
-  }
-</style>

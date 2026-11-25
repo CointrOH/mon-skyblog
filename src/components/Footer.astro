@@ -1,0 +1,19 @@
+---
+import { withBase } from '../utils/base.ts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="page">
+    <p>© 2005–{year} Mon Skyblog — site de démonstration, fait main.</p>
+    <p class="site-footer__small">
+      Best viewed in 800×600 · HTML 4.01 · Notepad · sans cookie ni analytics
+    </p>
+    <p>
+      <a href={withBase('/')}>Accueil</a>
+      {' · '}
+      <a href="#contenu">Haut de page</a>
+    </p>
+  </div>
+</footer>

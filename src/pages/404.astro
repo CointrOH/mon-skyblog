@@ -1,18 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase } from '../utils/base.ts';
+
+const homeUrl = withBase('/');
 ---
 
 <BaseLayout
-  title="Page introuvable"
-  description="La page demandée n'existe pas ou a été déplacée."
+  title="Perdue dans le web"
+  description="Erreur 404 : cette page s'est perdue dans le web des années 2000."
 >
-  <h1>Page introuvable</h1>
-  <p>
-    Erreur 404 : la page que vous cherchez n'existe pas, ou plus. Elle a peut-être été
-    déplacée lors du grand ménage du web.
-  </p>
-  <p>
-    <a href={withBase('/')}>← Retour à la page d'accueil</a>
-  </p>
+  <div class="panel error-page">
+    <p class="error-page__code" aria-hidden="true">404</p>
+    <h1>Perdue dans le web</h1>
+    <p>
+      Cette page n'existe pas, ou plus. Elle a peut-être été avalée par un lien mort, comme tant
+      d'autres pages personnelles des années 2000.
+    </p>
+    <p><a href={homeUrl}>← Retour à la page d'accueil</a></p>
+    <p><a href={`${homeUrl}#articles`}>Voir les derniers billets</a></p>
+  </div>
 </BaseLayout>

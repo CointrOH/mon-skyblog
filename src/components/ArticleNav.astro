@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../utils/base.ts';
+import { entryIdToSlug } from '../utils/slug.ts';
+
+interface Props {
+  previous?: CollectionEntry<'blog'>;
+  next?: CollectionEntry<'blog'>;
+}
+
+const { previous, next } = Astro.props;
+
+const articleUrl = (article: CollectionEntry<'blog'>) =>
+  withBase(`/blog/${entryIdToSlug(article.id)}/`);
+---
+
+<nav class="article-nav" aria-label="Navigation entre les articles">
+  <ul class="article-nav__list">
+    <li>
+      {
+        previous ? (
+          <a href={articleUrl(previous)}>← Article précédent : {previous.data.title}</a>
+        ) : (
+          <span class="article-nav__empty">Début du blog</span>
+        )
+      }
+    </li>
+    <li>
+      {
+        next ? (
+          <a href={articleUrl(next)}>Article suivant : {next.data.title} →</a>
+        ) : (
+          <span class="article-nav__empty">Fin du blog</span>
+        )
+      }
+    </li>
+  </ul>
+</nav>
