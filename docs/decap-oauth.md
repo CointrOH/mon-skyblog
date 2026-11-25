@@ -99,7 +99,7 @@ Decap CMS (endpoints `auth` et `callback`, jeton renvoyé par `postMessage`).
 | `backend.base_url` | `public/admin/config.yml` (**dans le dépôt**) | `https://sveltia-cms-auth.<sous-domaine>.workers.dev` | Origine du worker ; par convention **sans chemin ni slash final** (un slash final produirait un double slash dans `<base_url>/<auth_endpoint>`) |
 | `GITHUB_CLIENT_ID` | variables d'environnement **du worker** (pas dans le dépôt) | identifiant public de l'app GitHub | Peut rester côté serveur |
 | `GITHUB_CLIENT_SECRET` | **secret** du worker (jamais dans le dépôt) | — | À ne jamais committer, ni afficher |
-| `ALLOWED_DOMAINS` | variables d'environnement **du worker** | `sebastienzam.github.io` | Hôte du site, sans port ni chemin ; plusieurs valeurs séparées par des virgules |
+| `ALLOWED_DOMAINS` | variables d'environnement **du worker** | `cointroh.github.io` | Hôte du site, sans port ni chemin ; plusieurs valeurs séparées par des virgules |
 
 Le dépôt ne contient donc **que** `repo` et `base_url` (non sensibles) ; le client secret reste
 exclusivement dans les variables secrètes du worker.
@@ -169,7 +169,7 @@ ajouter :
 | --- | --- | --- |
 | `GITHUB_CLIENT_ID` | variable | Client ID de l'app GitHub (A1) ou de l'OAuth App (A2) |
 | `GITHUB_CLIENT_SECRET` | **secret** | Client secret de l'app GitHub (A1) ou de l'OAuth App (A2) |
-| `ALLOWED_DOMAINS` | variable | Hôtes autorisés du site, ex. `sebastienzam.github.io` (pas de port, pas de chemin ; liste séparée par virgules ; wildcard de sous-domaine possible) |
+| `ALLOWED_DOMAINS` | variable | Hôtes autorisés du site, ex. `cointroh.github.io` (pas de port, pas de chemin ; liste séparée par virgules ; wildcard de sous-domaine possible) |
 | `GITHUB_HOSTNAME` | variable (option) | Uniquement pour GitHub Enterprise Server ; laisser vide sinon |
 | `GITHUB_ALLOW_WORKFLOW_SCOPE` | variable (option) | `true` seulement si les éditeurs doivent modifier `.github/workflows/` (déconseillé) |
 
