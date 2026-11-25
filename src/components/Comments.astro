@@ -1,6 +1,5 @@
 ---
 import { withBase } from '../utils/base.ts';
-import { giscus } from '../config/site.ts';
 
 interface Props {
   heading?: string;
@@ -17,19 +16,11 @@ const {
 } = Astro.props;
 
 const privacyUrl = withBase('/confidentialite/');
-const discussionsUrl = 'https://github.com/CointrOH/mon-skyblog/discussions';
-
-// En production, Giscus charge le thème rétro auto-hébergé dans son iframe.
-// En développement, on garde le thème `light` pour éviter les problèmes CORS.
-const themeUrl = new URL(
-  withBase('/giscus-theme.css'),
-  import.meta.env.DEV ? Astro.url.origin : (Astro.site ?? Astro.url.origin),
-).href;
 ---
 
-<!-- Commentaires Giscus (GitHub Discussions). Même composant pour les articles
-     et pour le livre d'or : seuls le titre, l'introduction et l'identifiant de
-     section changent. L'application giscus doit être installée sur le dépôt. -->
+<!-- Commentaires momentanément fermés : aucun service tiers, script, iframe
+     ni formulaire. Ce composant reste partagé par les articles et le livre
+     d'or ; il n'embarque aucune collecte de données. -->
 <section class="comments" aria-labelledby={`${sectionId}-titre`}>
   <h2 id={`${sectionId}-titre`}>{heading}</h2>
 
@@ -37,45 +28,11 @@ const themeUrl = new URL(
   {note && <p class="comments__note">{note}</p>}
 
   <p class="comments__note">
-    Les commentaires sont hébergés par GitHub Discussions ; un compte GitHub est nécessaire pour
-    participer. Les messages sont publics.{' '}
-    <a href={privacyUrl}>Politique de confidentialité</a>.
+    Les commentaires sont momentanément fermés. Une nouvelle version, sans compte à créer, arrive
+    bientôt.
   </p>
 
-  <div class="giscus comments__embed"></div>
-
-  <!-- Repli visible si le script/iframe ne s'affiche pas (blocage, réseau…). -->
-  <p class="comments__fallback">
-    La zone de commentaires ne s'affiche pas ?{' '}
-    <a href={discussionsUrl} target="_blank" rel="noopener noreferrer">
-      Ouvrir les Discussions GitHub<span class="sr-only"> (nouvelle fenêtre)</span>
-    </a>
+  <p class="comments__note">
+    <a href={privacyUrl}>Politique de confidentialité</a>
   </p>
-
-  <script
-    is:inline
-    src="https://giscus.app/client.js"
-    data-repo={giscus.repo}
-    data-repo-id={giscus.repoId}
-    data-category={giscus.category}
-    data-category-id={giscus.categoryId}
-    data-mapping={giscus.mapping}
-    data-strict={giscus.strict}
-    data-reactions-enabled={giscus.reactionsEnabled}
-    data-emit-metadata={giscus.emitMetadata}
-    data-input-position={giscus.inputPosition}
-    data-theme={import.meta.env.DEV ? giscus.theme : themeUrl}
-    data-lang={giscus.lang}
-    data-loading={giscus.loading}
-    crossorigin="anonymous"
-    async></script>
-
-  <noscript>
-    <p class="comments__fallback">
-      JavaScript est désactivé : la zone de commentaires ne peut pas s'afficher ici.{' '}
-      <a href={discussionsUrl} target="_blank" rel="noopener noreferrer">
-        Ouvrir les Discussions GitHub<span class="sr-only"> (nouvelle fenêtre)</span>
-      </a>
-    </p>
-  </noscript>
 </section>

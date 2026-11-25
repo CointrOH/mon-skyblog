@@ -4,19 +4,16 @@ import { withBase } from '../utils/base.ts';
 const guestbookUrl = withBase('/livre-d-or/');
 ---
 
-<!-- Teaser du livre d'or : les vrais messages vivent sur /livre-d-or/ (Giscus).
-     Aucun faux message ici. -->
+<!-- Teaser du livre d'or : la page /livre-d-or/ explique que les messages sont
+     momentanément fermés. Aucun faux message ici. -->
 <section class="widget" id="livre-dor" aria-labelledby="livre-dor-titre">
   <h2 class="widget__title" id="livre-dor-titre">Livre d'or</h2>
   <p>
-    Vous êtes passé par ici ? Laissez un petit mot sur le livre d'or, comme au bon vieux temps
-    des pages perso.
+    Vous êtes passé par ici ? Le livre d'or prend une petite pause, le temps de choisir une
+    solution respectueuse de votre vie privée.
   </p>
   <p>
-    <a href={guestbookUrl}>Signer le livre d'or →</a>
+    <a href={guestbookUrl}>Voir le livre d'or →</a>
   </p>
-  <p class="widget__note">
-    Les messages sont hébergés par GitHub Discussions. Un compte GitHub est nécessaire pour
-    participer.
-  </p>
+  <p class="widget__note">Le livre d'or anonyme revient bientôt.</p>
 </section>

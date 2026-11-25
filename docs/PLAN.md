@@ -179,20 +179,21 @@ système). À vérifier à la main sur le site servi (`npm run dev` ou `npm run 
 
 Le cadrage de novembre 2026 (voir [`../BACKLOG.md`](../BACKLOG.md)) fait évoluer le site au-delà du
 périmètre initial T1–T6 : les promesses « zéro JS public » et « zéro requête externe » sont
-remplacées par un JavaScript minimal et documenté, et les éléments factices par de vrais services
-gratuits. Les sections 1 à 6 décrivent l'état initial et restent un historique : elles ne reflètent
-plus l'état courant.
+remplacées par un JavaScript minimal et documenté, et les éléments factices par un vrai service
+gratuit (le compteur GoatCounter). Les commentaires restent momentanément fermés. Les sections 1
+à 6 décrivent l'état initial et restent un historique : elles ne reflètent plus l'état courant.
 
 | ID | Décision | Mise en œuvre |
 | --- | --- | --- |
-| **D-01** | JavaScript autorisé, contenu lisible sans JS | Giscus, GoatCounter et scripts inline (galerie, compteur) ; replis `<noscript>` et messages d'erreur |
+| **D-01** | JavaScript autorisé, contenu lisible sans JS | GoatCounter et scripts inline (galerie, compteur) ; replis `<noscript>` et messages d'erreur |
 | **D-02** | Images de couverture et images dans le corps | `cover` / `coverAlt` / `coverCaption`, figure `.article__cover`, aide CMS, styles `.prose img` |
-| **D-03** | Commentaires et livre d'or via Giscus | composant `Comments.astro` partagé, page `/livre-d-or/`, identifiants GitHub publics |
+| **D-03** | Giscus écarté : impose un compte GitHub ; commentaires momentanément fermés, solution anonyme à valider | composant `Comments.astro` partagé (placeholder), page `/livre-d-or/` ; aucun script, iframe ni formulaire |
 | **D-04** | Compteur GoatCounter | script de comptage global chargé par `BaseLayout`, widget `VisitCounter`, variable `GOATCOUNTER_CODE`, total mis en cache 4 h |
 | **D-05** | Galerie admin-only | collection `gallery`, page `/galerie/`, masquage accessible et `prefers-reduced-motion` |
 | **D-06** | Page confidentialité et RGPD | `/confidentialite/`, contact dédié à créer, sous-traitants documentés |
-| **D-07** | Budget 0 € | Giscus et GoatCounter en free tier, aucune dépendance payante |
-| **D-08** | Pas de modération a priori | publication immédiate, suppression a posteriori via GitHub Discussions |
+| **D-07** | Budget 0 € | GoatCounter en free tier, aucune dépendance payante |
+| **D-08** | Pas de modération a priori | commentaires momentanément fermés : aucune modération à assurer ; règles à définir si une solution anonyme est validée |
 
-Les actions humaines restantes (installation de l'application giscus, création du site GoatCounter,
-adresse de contact RGPD, recette navigateur) sont suivies dans le `BACKLOG.md` §4 et le README.
+Les actions humaines restantes (choix d'une solution anonyme de commentaires, création du site
+GoatCounter, adresse de contact RGPD, recette navigateur) sont suivies dans le `BACKLOG.md` §4 et
+le README.

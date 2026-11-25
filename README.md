@@ -4,10 +4,10 @@
 
 Journal rétro « Skyblog 1990-2000 » construit avec **Astro** et éditable via **Decap CMS**.
 Articles de démonstration, images de couverture et images dans le texte, galerie de GIF alimentée
-depuis l'administration, commentaires et livre d'or via **Giscus** (GitHub Discussions), compteur
-**GoatCounter**, page de confidentialité, thème accessible et volontairement daté (bannière,
-marquee, webring), rendu statique déployable sur GitHub Pages, et une administration auto-hébergée
-en `/admin/` (aucun CDN).
+depuis l'administration, commentaires momentanément fermés (Giscus écarté car il imposait un
+compte GitHub ; solution anonyme à valider), compteur **GoatCounter**, page de confidentialité,
+thème accessible et volontairement daté (bannière, marquee, webring), rendu statique déployable
+sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN).
 
 ## Fonctionnalités
 
@@ -21,9 +21,9 @@ en `/admin/` (aucun CDN).
 - **CMS Decap** sur `/admin/` : interface en français, paquet npm auto-hébergé (aucun script
   distant), écriture directe des fichiers Markdown en local via `decap-server` ; collections
   `blog` et `gallery`.
-- **Commentaires Giscus** (GitHub Discussions) sur chaque article et **livre d'or** sur
-  `/livre-d-or/`, via un composant commun ; les messages sont publics et nécessitent un compte
-  GitHub.
+- **Commentaires momentanément fermés** : Giscus a été écarté car il imposait un compte GitHub ;
+  une solution anonyme reste à valider. Les pages d'article et `/livre-d-or/` affichent un
+  placeholder commun, sans script, iframe ni formulaire.
 - **Compteur GoatCounter** réel (sans cookie) : comptage sur toutes les pages publiques,
   affichage sur l'accueil, avec repli honnête « activation en cours » tant que le site
   GoatCounter n'est pas configuré.
@@ -32,7 +32,7 @@ en `/admin/` (aucun CDN).
 - **Thème rétro accessible** : polices 100 % système, motifs CSS, cadres biseautés, bannière
   dégradée, marquee CSS **avec contrôle de pause** (WCAG 2.2.2), `prefers-reduced-motion`,
   contrastes AA vérifiés, skip-link, focus visible, `lang` correct sur les passages anglais.
-- **JavaScript minimal et documenté** : scripts Giscus et GoatCounter, scripts inline de la galerie
+- **JavaScript minimal et documenté** : script GoatCounter, scripts inline de la galerie
   et du compteur ; le contenu reste consultable sans JS (voir « Scripts et requêtes externes »).
 - **Base-aware** : mêmes liens et assets à la racine (`/`) ou sous un sous-dossier (`/mon-repo`),
   pour GitHub Pages page utilisateur ou page de projet.
@@ -51,7 +51,7 @@ en `/admin/` (aucun CDN).
 | npm | **≥ 9.6.5** (développé avec 11.19.1) | Gestionnaire de paquets |
 
 Aucune autre dépendance que celles listées : pas de police distante, pas de framework côté public.
-Le JavaScript public se limite aux services documentés (Giscus, GoatCounter) et à quelques scripts
+Le JavaScript public se limite au service documenté (GoatCounter) et à quelques scripts
 inline ; la page admin charge Decap, bundlé localement.
 
 ## Démarrage rapide
@@ -101,17 +101,16 @@ docs/
 public/
 ├── .nojekyll                  # Fichier vide conservé pour compatibilité (publication depuis une branche)
 ├── favicon.svg                # Favicon rétro local (SVG)
-├── giscus-theme.css           # Thème rétro de l'iframe Giscus (data-theme en production)
 ├── admin/
 │   └── config.yml             # Configuration Decap CMS (backend, collections blog + gallery)
 └── images/
     └── uploads/               # Médias déposés via le CMS (public_folder /images/uploads)
 src/
-├── components/                # Composants présentationnels + widget Giscus
+├── components/                # Composants présentationnels + placeholder de commentaires
 │   ├── ArticleNav.astro       # Navigation précédent/suivant
 │   ├── Badges.astro           # Badges rétro + « under construction » SVG
 │   ├── Banner.astro           # Bannière dégradée (titre non h1)
-│   ├── Comments.astro         # Commentaires Giscus (articles + livre d'or)
+│   ├── Comments.astro         # Placeholder de commentaires (fermés)
 │   ├── Footer.astro           # Pied de page (liens confidentialité, galerie…)
 │   ├── Guestbook.astro        # Teaser du livre d'or vers /livre-d-or/
 │   ├── Marquee.astro          # Bandeau défilant CSS + contrôle de pause
@@ -120,7 +119,7 @@ src/
 │   ├── VisitCounter.astro     # Compteur GoatCounter (repli si non configuré)
 │   └── Webring.astro          # Webring (liens externes rel="noopener noreferrer")
 ├── config/
-│   └── site.ts                # Configuration publique : Giscus, GoatCounter, contact RGPD
+│   └── site.ts                # Configuration publique : GoatCounter, contact RGPD
 ├── content/
 │   ├── config.ts              # Schémas Zod des collections « blog » et « gallery » (legacy)
 │   ├── blog/                  # Articles Markdown (dont test.md)
@@ -131,9 +130,9 @@ src/
 │   ├── index.astro            # Accueil : liste + sidebar (grille 2 colonnes)
 │   ├── 404.astro              # Page introuvable thématisée
 │   ├── admin/index.astro      # Interface d'administration Decap CMS (/admin/)
-│   ├── blog/[slug].astro      # Page d'un article (couverture, prose, commentaires Giscus)
+│   ├── blog/[slug].astro      # Page d'un article (couverture, prose, commentaires fermés)
 │   ├── galerie.astro          # Galerie de GIF (masquage, reduced-motion, état vide)
-│   ├── livre-d-or.astro       # Livre d'or (même composant Giscus)
+│   ├── livre-d-or.astro       # Livre d'or (même composant de commentaires, fermé)
 │   └── confidentialite.astro  # Politique de confidentialité et droits RGPD
 ├── styles/
 │   └── skyblog.css            # Feuille globale unique du thème (sections commentées)
@@ -211,8 +210,8 @@ Deux terminaux : `npm run dev` et `npm run cms`, puis ouvrir
 local : connexion immédiate sans identifiant ni OAuth, écriture **directe** dans
 `src/content/blog/*.md` (et `src/content/gallery/*.md`), images dans `public/images/uploads/`. Le
 CMS est configuré dans `public/admin/config.yml` (interface `locale: fr`, collections `blog` et
-`gallery` alignées 1:1 sur les schémas Astro). Les commentaires et le compteur sont de vrais
-services (Giscus et GoatCounter) : voir leurs sections de configuration ci-dessous.
+`gallery` alignées 1:1 sur les schémas Astro). Les commentaires sont momentanément fermés
+(placeholder commun) ; le compteur GoatCounter est un vrai service, configuré plus bas.
 
 > `decap-server` ne sert **qu'au développement** : il n'a aucune authentification et n'écoute que
 > sur localhost. Ne jamais l'exposer en production.
@@ -231,9 +230,9 @@ services (Giscus et GoatCounter) : voir leurs sections de configuration ci-desso
 - **Contrastes** AA vérifiés sur 27 paires texte/fond (≥ 4.5:1 pour le texte courant, la plupart
   ≥ 7:1) ; indicateur de focus noir + halo jaune ; skip-link ; `lang="en"` sur les badges et
   mentions anglaises.
-- **CSP des pages publiques** : meta `Content-Security-Policy` dans `BaseLayout.astro`, limitée aux
-  origines de Giscus, de GoatCounter et aux images `https:` (détail dans la section suivante). La
-  page `/admin/` garde son propre HTML et n'inclut pas cette CSP.
+- **CSP des pages publiques** : meta `Content-Security-Policy` dans `BaseLayout.astro`, limitée à
+  l'origine de GoatCounter et aux images `https:` (détail dans la section suivante). La page
+  `/admin/` garde son propre HTML et n'inclut pas cette CSP.
 
 ## Scripts et requêtes externes
 
@@ -242,53 +241,16 @@ D-01 à D-04 de `BACKLOG.md`). Voici la liste exhaustive des scripts et requête
 
 | Origine | Chargée sur | Rôle | Repli sans JS / sans réseau |
 | --- | --- | --- | --- |
-| `https://giscus.app` (client + iframe) | pages d'article, `/livre-d-or/` | commentaires via GitHub Discussions | lien vers les Discussions GitHub |
 | `https://gc.zgo.at`, `https://*.goatcounter.com` | toutes les pages publiques (script) ; widget sur l'accueil | mesure d'audience sans cookie | « — » puis « indisponible » |
 | Images `https:` externes | `/galerie/`, si `externalUrl` est utilisé | GIF optionnels | lien direct « Ouvrir le GIF » |
 
-- Les scripts Giscus (`client.js`) et GoatCounter (`count.js`) sont les seuls scripts distants ; la
-  CSP les autorise explicitement, ainsi que `api.github.com` pour les requêtes de Giscus.
+- Le script GoatCounter (`count.js`) est le seul script distant ; la CSP l'autorise
+  explicitement, ainsi que `gc.zgo.at` et `*.goatcounter.com` pour le total.
 - Les scripts inline (masquage de la galerie, mise à jour du compteur) sont couverts par
   `'unsafe-inline'` et documentés directement dans les composants.
-- Aucun cookie de mesure : GoatCounter fonctionne sans cookie. GitHub peut déposer ses propres
-  cookies dans l'iframe de commentaires (voir `/confidentialite/`).
+- Aucun cookie de mesure : GoatCounter fonctionne sans cookie. Aucun service de commentaires
+  tiers n'est chargé.
 - Le bundle Decap de `/admin/` est servi localement (aucun CDN) ; cette page n'inclut pas la CSP.
-
-## Configuration des commentaires (Giscus)
-
-Les commentaires des articles et le livre d'or utilisent le **même composant**
-(`src/components/Comments.astro`) et le même backend : **GitHub Discussions** via
-[Giscus](https://giscus.app). Gratuit, sans serveur, sans modération manuelle (D-03 et D-08).
-
-**Prérequis** : les Discussions GitHub sont activées sur `CointrOH/mon-skyblog`. L'application
-giscus doit être installée par le propriétaire (une seule fois) : le code est prêt, mais l'iframe ne
-pourra afficher les commentaires qu'après cette installation.
-
-**Installation (une seule fois)** :
-
-1. Ouvrir <https://github.com/apps/giscus/installations/new> ;
-2. Autoriser l'application sur le dépôt `CointrOH/mon-skyblog` (accès aux Discussions) ;
-3. Recharger une page d'article ou `/livre-d-or/` : la zone de commentaires doit apparaître.
-
-**Identifiants** (publics, dans `src/config/site.ts`) :
-
-| Paramètre | Valeur |
-| --- | --- |
-| `repo` | `CointrOH/mon-skyblog` |
-| `repoId` | `R_kgDOV7a4xQ` |
-| `category` | `Announcements` |
-| `categoryId` | `DIC_kwDOV7a4xc4DL8UZ` |
-| `mapping` | `pathname` |
-| `theme` / `lang` / `loading` | `light` / `fr` / `lazy` |
-
-Le mapping `pathname` crée une discussion par chemin de page : les articles et `/livre-d-or/` ont
-donc chacun la leur. **Participation** : un compte GitHub est nécessaire ; les messages sont
-publics et s'affichent immédiatement (pas de modération a priori, suppression a posteriori dans
-l'onglet Discussions du dépôt). Chaque bloc renvoie vers `/confidentialite/`.
-
-En production, l'iframe Giscus reçoit l'URL absolue (base-aware) du thème rétro auto-hébergé
-`public/giscus-theme.css` via `data-theme` ; en développement, le thème `light` est conservé pour
-éviter les problèmes CORS. Le fichier de thème est fourni avec la feuille de style du site.
 
 ## Configuration du compteur (GoatCounter)
 
@@ -304,8 +266,7 @@ pas configuré, il affiche « — » et « activation en cours » : aucun script
    (sans cette option, l'endpoint `/counter/TOTAL.json` reste fermé et le widget affiche
    « indisponible ») ;
 3. Toujours dans les réglages, **désactiver les collectes optionnelles** (navigateur, taille
-   d'écran, localisation) : seules les pages vues, les totaux et les référents agrégés sont
-   conservés ;
+   d'écran, localisation) : seules les pages vues et les totaux agrégés sont conservés ;
 4. Dans GitHub : **Settings → Secrets and variables → Actions → Variables**, ajouter
    `GOATCOUNTER_CODE` = code du site (variable publique, pas un secret) ;
 5. Pousser sur `main` (ou lancer le workflow) : `deploy.yml` transmet
@@ -385,8 +346,8 @@ Le backend GitHub de Decap ne peut pas s'authentifier depuis un site statique : 
   qui autorise l'app, mais Decap ne peut lire/écrire le contenu que si ce compte a un **accès push
   au dépôt**. Aucune liste d'utilisateurs n'est gérée côté worker ; la barrière est celle des
   permissions GitHub du dépôt.
-- **CSP** : les pages publiques déclarent une `Content-Security-Policy` restrictive (Giscus,
-  GoatCounter, images `https:`/`data:` uniquement) ; `/admin/` n'est pas concerné.
+- **CSP** : les pages publiques déclarent une `Content-Security-Policy` restrictive (GoatCounter,
+  images `https:`/`data:` uniquement, aucun iframe) ; `/admin/` n'est pas concerné.
 - **`local_backend` strictement localhost** : `decap-server` n'a pas d'authentification.
 - **Dépendances** : versions épinglées et installation reproductible (`npm ci` +
   `package-lock.json`).
@@ -422,15 +383,14 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
   internes fonctionnent à la racine comme sous `/mon-skyblog`. Limite résiduelle : les **aperçus
   d'images dans l'interface du CMS** restent absolus et peuvent ne pas s'afficher sous une base de
   projet — le contenu publié, lui, est correct.
-- **Commentaires** : un **compte GitHub** est nécessaire pour participer ; les messages sont
-  publics. L'application giscus doit être installée par le propriétaire sur le dépôt (voir
-  « Configuration des commentaires (Giscus) ») ; sans elle, le bloc reste vide même si le script
-  est chargé.
+- **Commentaires** : temporairement fermés, solution anonyme à choisir. Les pages concernées
+  affichent un placeholder ; aucun script, iframe ou formulaire de commentaire n'est actif.
 - **Compteur** : total GoatCounter mis en cache **4 h** (pas d'instantané). Le script de comptage
   est chargé sur toutes les pages publiques (total site-wide) ; seul le widget de l'accueil affiche
   le chiffre.
 - **Contact RGPD** : l'adresse dédiée est **à créer** et à renseigner dans `src/config/site.ts`
-  (`contactEmail`). En attendant, la page Confidentialité renvoie vers les Discussions GitHub.
+  (`contactEmail`). En attendant, la page Confidentialité indique qu'aucune donnée personnelle
+  ne doit être publiée sur le site.
 - **GIFs animés** : ils peuvent être lourds et distrayants ; la galerie limite les dégâts (chargement
   différé, masquage accessible, `prefers-reduced-motion`) mais le webmaster doit éviter les fichiers
   de plus de ~2 Mo et remplir le texte alternatif. Une couverture au format GIF s'anime aussi sur la
@@ -440,7 +400,7 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
   éventuelle est côté site.
 - **Validation visuelle** : l'environnement de build n'a pas de navigateur exploitable ; les
   contrôles visuels (responsive 320–375 px / 800×600 / desktop, reduced-motion, masquage des GIFs,
-  focus, giscus, compteur) sont à faire à la main — recette dans `docs/PLAN.md`.
+  focus, compteur) sont à faire à la main — recette dans `docs/PLAN.md`.
 
 ## Checklist de mise en ligne
 
@@ -454,13 +414,11 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 **À faire côté propriétaire (services externes)** :
 
-- [ ] **Installer l'application giscus** sur le dépôt :
-      <https://github.com/apps/giscus/installations/new> (les Discussions sont déjà activées) ;
 - [ ] **Créer le site GoatCounter** puis la variable `GOATCOUNTER_CODE`
       (Settings → Secrets and variables → Actions → Variables) ;
 - [ ] **Créer l'adresse email de contact RGPD** et la renseigner dans `src/config/site.ts`
       (`contactEmail`), puis redéployer ;
-- [ ] Tester en navigateur : commentaires d'un article, `/livre-d-or/`, compteur, `/galerie/`
+- [ ] Tester en navigateur : `/livre-d-or/` (placeholder), compteur, `/galerie/`
       (masquage + `prefers-reduced-motion`), `/confidentialite/`.
 
 **À vérifier côté navigateur** :
@@ -482,6 +440,6 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 Site de démonstration construit avec [Astro](https://astro.build) et
 [Decap CMS](https://decapcms.org) (MIT), polices système uniquement. Les services externes se
-limitent à Giscus (commentaires, GitHub Discussions) et GoatCounter (compteur sans cookie), plus
-les éventuels GIF externes de la galerie. Contenu rédactionnel fictif à but pédagogique ; pas de
-licence explicite ajoutée à ce stade.
+limitent à GoatCounter (compteur sans cookie), plus les éventuels GIF externes de la galerie.
+Les commentaires sont momentanément fermés, sans service tiers. Contenu rédactionnel fictif à but
+pédagogique ; pas de licence explicite ajoutée à ce stade.

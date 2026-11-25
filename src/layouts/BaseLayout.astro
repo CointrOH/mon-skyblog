@@ -30,18 +30,17 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <!-- Politique de sécurité du contenu (CSP) des pages publiques.
-         Exceptions volontaires, limitées aux services retenus :
-         - script-src : giscus.app (client de commentaires) et gc.zgo.at
-           (script du compteur GoatCounter) ;
+         Exceptions volontaires, limitées au service de mesure retenu :
+         - script-src : gc.zgo.at (script du compteur GoatCounter) ;
          - img-src : data: pour le pixel transparent de la galerie et https:
            pour les GIF externes éventuels ;
-         - connect-src : requêtes de Giscus (giscus.app, api.github.com) et
-           total du compteur GoatCounter (*.goatcounter.com, gc.zgo.at) ;
-         - frame-src : l'iframe de commentaires hébergée par giscus.app.
+         - connect-src : total du compteur GoatCounter (*.goatcounter.com,
+           gc.zgo.at) ;
+         - frame-src 'none' : aucun iframe tiers (commentaires fermés).
          La page /admin/ a son propre HTML et n'inclut pas cette CSP. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://giscus.app https://api.github.com https://*.goatcounter.com https://gc.zgo.at; frame-src https://giscus.app; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.goatcounter.com https://gc.zgo.at; frame-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
     />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{fullTitle}</title>
