@@ -17,7 +17,7 @@ une administration auto-hébergée en `/admin/` (aucun CDN).
 - **Collection de contenu `blog`** typée par un schéma Zod strict : article rendu depuis
   `src/content/blog/*.md`, brouillons exclus de la production.
 - **Collection `gallery`** réservée à l'administration : GIF uploadés via Decap, page `/galerie/`
-  avec grille, état vide, masquage accessible et respect de `prefers-reduced-motion`.
+  qui n'affiche que les GIF, sans cadre ni texte ; état vide conservé.
 - **CMS Decap** sur `/admin/` : interface en français, paquet npm auto-hébergé (aucun script
   distant), écriture directe des fichiers Markdown en local via `decap-server` ; collections
   `blog` et `gallery`.
@@ -137,7 +137,7 @@ src/
 │   ├── 404.astro              # Page introuvable thématisée
 │   ├── admin/index.astro      # Interface d'administration Decap CMS (/admin/)
 │   ├── blog/[slug].astro      # Page d'un article (couverture, prose, commentaires anonymes)
-│   ├── galerie.astro          # Galerie de GIF (masquage, reduced-motion, état vide)
+│   ├── galerie.astro          # Galerie de GIF (GIF seuls, sans texte ni contrôle, état vide)
 │   ├── livre-d-or.astro       # Livre d'or (même composant de commentaires, page dédiée)
 │   └── confidentialite.astro  # Politique de confidentialité et droits RGPD
 ├── styles/
@@ -191,8 +191,8 @@ développement).
 La collection `gallery` stocke les entrées de `/galerie/` dans `src/content/gallery/*.md`. Elle
 n'est pas ouverte au public : **seul le webmaster** ajoute des GIF via `/admin/` (collection
 « Galerie »), les fichiers allant dans la médiathèque globale `public/images/uploads/`. Évitez les
-fichiers lourds (au-delà de ~2 Mo) : les GIF animés sont chargés en différé et peuvent être
-masqués.
+fichiers lourds (au-delà de ~2 Mo) : les GIF animés sont chargés en `loading="lazy"` ; la page
+n'affiche qu'eux.
 
 | Champ | Type / contrainte | Défaut |
 | --- | --- | --- |
@@ -206,8 +206,8 @@ masqués.
 | `tags` | tableau de strings | `[]` |
 
 Au moins `image` ou `externalUrl` est requis (raffinement Zod). Sans entrée, la page affiche un
-état vide honnête ; le bouton « Masquer les GIFs » et `prefers-reduced-motion` évitent les
-animations subies.
+état vide honnête ; sinon, les GIF sont affichés seuls, sans contrôle pause (choix assumé). Les
+champs `description`, `credit` et `tags` restent disponibles dans le CMS mais ne sont plus affichés.
 
 ### Éditer via le CMS (local)
 
@@ -492,16 +492,15 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 - **Contact RGPD** : l'adresse dédiée est **à créer** et à renseigner dans `src/config/site.ts`
   (`contactEmail`). En attendant, la page Confidentialité indique qu'aucune donnée personnelle
   ne doit être publiée sur le site.
-- **GIFs animés** : ils peuvent être lourds et distrayants ; la galerie limite les dégâts (chargement
-  différé, masquage accessible, `prefers-reduced-motion`) mais le webmaster doit éviter les fichiers
-  de plus de ~2 Mo et remplir le texte alternatif. Une couverture au format GIF s'anime aussi sur la
-  page article et les cartes, sans contrôle de pause dédié : pour une accessibilité stricte,
-  préférer une image statique (JPG/PNG) en couverture.
+- **GIFs animés** : la galerie affiche les GIF seuls, sans texte, sans cadre et **sans contrôle
+  pause/stop** — choix explicite du propriétaire, qui assume la non-conformité WCAG 2.2.2 pour les
+  GIFs animés. Éviter les fichiers de plus de ~2 Mo et remplir le texte alternatif. Une couverture
+  au format GIF s'anime aussi sur la page article et les cartes, sans contrôle de pause dédié : pour
+  une accessibilité stricte, préférer une image statique (JPG/PNG) en couverture.
 - **Pas de prévisualisation serveur** : le CMS est une interface statique ; la prévisualisation
   éventuelle est côté site.
 - **Validation visuelle** : l'environnement de build n'a pas de navigateur exploitable ; les
-  contrôles visuels (responsive 320–375 px / 800×600 / desktop, reduced-motion, masquage des GIFs,
-  focus, compteur) sont à faire à la main — recette dans `docs/PLAN.md`.
+  contrôles visuels (responsive 320–375 px / 800×600 / desktop, focus, compteur) sont à faire à la main — recette dans `docs/PLAN.md`.
 
 ## Checklist de mise en ligne
 

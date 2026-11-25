@@ -193,7 +193,7 @@ courant.
 | **D-02** | Images de couverture et images dans le corps | `cover` / `coverAlt` / `coverCaption`, figure `.article__cover`, aide CMS, styles `.prose img` |
 | **D-03** | **Giscus rejeté** (compte GitHub obligatoire) ; **Worker Cloudflare + D1 + Turnstile retenu** pour des commentaires anonymes | composant `Comments.astro` partagé (articles + `/livre-d-or/`, `page` = chemin), formulaire pseudo + message, Turnstile interaction-only, honeypot ; placeholder sans formulaire/script si `COMMENTS_API` ou `TURNSTILE_SITE_KEY` manque |
 | **D-04** | Compteur GoatCounter | script de comptage global chargé par `BaseLayout`, widget `VisitCounter`, variable `GOATCOUNTER_CODE`, total mis en cache 4 h |
-| **D-05** | Galerie admin-only | collection `gallery`, page `/galerie/`, masquage accessible et `prefers-reduced-motion` |
+| **D-05** | Galerie admin-only | collection `gallery`, page `/galerie/`, GIF seuls sans texte/bordure/contrôle pause (choix propriétaire, WCAG 2.2.2 non couvert) |
 | **D-06** | Page confidentialité et RGPD | `/confidentialite/`, contact dédié à créer, sous-traitants documentés (dont Cloudflare) |
 | **D-07** | Budget 0 € | GoatCounter en free tier, Cloudflare Workers/D1/Turnstile en free tier, aucune dépendance payante |
 | **D-08** | Pas de modération a priori | messages publiés immédiatement puis conservés jusqu'à suppression ; anti-spam Turnstile + honeypot + limitation de débit par hash d'IP (24 h), sans filtrage éditorial préalable |

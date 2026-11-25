@@ -1269,170 +1269,50 @@ main {
 }
 
 /* 11. Galerie ------------------------------------------------------------- */
-/* Aucune animation CSS sur les cartes : la pause des GIF est gérée en JS
-   (bouton .gallery-pause avec aria-pressed) ; le CSS ne fait que l'état visuel. */
-.gallery-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.8rem;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0 1rem;
-}
-
-.gallery-pause {
-  padding: 0.4rem 0.9rem;
-  background: var(--sk-yellow);
-  border: 3px outset var(--sk-border);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-  color: var(--sk-ink);
-  font-family: var(--font-display);
-  font-size: 0.92rem;
-  font-weight: bold;
-  line-height: 1.3;
-  cursor: pointer;
-}
-
-.gallery-pause:hover {
-  background: var(--sk-purple);
-  color: #ffffff;
-}
-
-/* aria-pressed="true" = galerie en pause : bouton enfoncé, contraste AA. */
-.gallery-pause[aria-pressed='true'] {
-  background: var(--sk-magenta);
-  border-style: inset;
-  box-shadow: none;
-  color: #ffffff;
-}
-
-.gallery-hint {
-  flex: 1 1 18rem;
-  max-width: 42rem;
-  margin: 0;
-  color: var(--sk-muted);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-}
-
+/* « JUSTE LE GIF » : aucun contrôle, aucun texte, aucun habillage. Les cartes
+   ne sont que des cellules de grille ; l'image est le seul élément visible. */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   gap: 1rem;
+  align-items: start;
   margin: 0;
   padding: 0;
+  background: none;
+  border: 0;
   list-style: none;
 }
 
+/* La carte n'est plus qu'un conteneur de mise en page : aucun habillage. */
 .gallery-card {
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-  padding: 0.6rem 0.7rem 0.8rem;
-  background: var(--sk-panel);
-  border: var(--panel-border);
-  box-shadow: var(--hard-shadow);
-}
-
-/* La figure porte aussi la légende (titre, date, description, lien) : c'est
-   l'image elle-même qui garde un cadre carré, pas la figure entière. */
-.gallery-card__media {
-  position: relative;
   margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  list-style: none;
 }
 
-/* Image encapsulée dans un lien : bloc sans débordement, le focus visible
-   global (outline noir + halo jaune) entoure toute la zone cliquable. */
+/* Image encapsulée dans un lien : bloc sans débordement, sans bordure. */
 .gallery-card__image-link {
   display: block;
-  max-width: 100%;
+  width: 100%;
+  border: 0;
   text-decoration: none;
 }
 
+/* Le GIF seul : aucun cadre, bordure, fond, ombre ni damier. */
 .gallery-card__img {
   display: block;
   width: 100%;
   height: auto;
   max-width: 100%;
-  aspect-ratio: 1;
-  object-fit: contain;
-  /* Damier en pur CSS : la transparence des GIF reste lisible, sans image distante. */
-  background-color: #ffffff;
-  background-image:
-    linear-gradient(45deg, #e2e2e2 25%, transparent 25%, transparent 75%, #e2e2e2 75%),
-    linear-gradient(45deg, #e2e2e2 25%, transparent 25%, transparent 75%, #e2e2e2 75%);
-  background-size: 16px 16px;
-  background-position:
-    0 0,
-    8px 8px;
-  border: 3px inset var(--sk-border);
-}
-
-.gallery-card__media figcaption {
-  margin-top: 0.55rem;
-}
-
-/* Étiquette posée dans le coin du damier : elle ne masque pas l'image chargée. */
-.gallery-grid.is-paused .gallery-card__media::after {
-  content: 'GIF masqué';
-  position: absolute;
-  top: 0.35rem;
-  left: 0.35rem;
-  z-index: 1;
-  padding: 0.05rem 0.4rem;
-  background: var(--sk-ink);
-  border: 2px outset #9e9e9e;
-  color: var(--sk-yellow);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: bold;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
-  pointer-events: none;
-}
-
-.gallery-card__title {
-  margin: 0 0 0.2rem;
-  color: var(--sk-magenta);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  overflow-wrap: break-word;
-}
-
-.gallery-card__meta {
-  margin: 0 0 0.4rem;
-  color: var(--sk-muted);
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-}
-
-.gallery-card__desc {
-  margin: 0 0 0.6rem;
-  font-size: 0.9rem;
-}
-
-/* Lien ou bouton (Decap peut rendre l'un ou l'autre) : même bouton rétro. */
-.gallery-card__link {
-  display: inline-block;
-  align-self: flex-start;
-  max-width: 100%;
-  margin: 0;
-  padding: 0.3rem 0.75rem;
-  background: var(--sk-panel-alt);
-  border: 3px outset var(--sk-border);
-  color: var(--sk-link);
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: bold;
-  line-height: 1.35;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.gallery-card__link:hover {
-  background: var(--sk-magenta);
-  border-color: var(--sk-magenta);
-  color: #ffffff;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .gallery-empty {

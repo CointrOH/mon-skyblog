@@ -38,7 +38,7 @@ Contraintes :
 | **D-02** | Images : couverture **et** images dans le corps via l'éditeur Markdown de Decap. La couverture doit apparaître sur la page article. | Demande explicite ; le support existait à moitié. | Ajout de `coverAlt` / `coverCaption`, affichage de la couverture, styles `.prose img`, aide dans le CMS. |
 | **D-03** | Commentaires d'articles et livre d'or : **Giscus rejeté** (compte GitHub obligatoire). Remplacé par un module **anonyme** maison (D-09). | Critère produit non négociable : aucun compte visiteur. | Giscus retiré ; nouveau module partagé articles + livre d'or. |
 | **D-04** | Compteur : **GoatCounter** hébergé (gratuit, sans cookie, serveurs UE). | Le plus simple et le plus privacy-friendly ; le propriétaire fait confiance au PO. | Le script de comptage est chargé sur toutes les pages publiques (total site-wide) ; le widget de l'accueil affiche le total. Le chiffre affiché est mis en cache **4 h**. Si l'instantanéité devient exigence, basculer sur Cloudflare Worker + D1 (P2-bis). |
-| **D-05** | Galerie : **upload admin uniquement** via Decap, page `/galerie/`. | « J'upload moi-même » ; évite l'upload public et ses abus. | Nouvelle collection `gallery`, page dédiée, masquage accessible des GIFs (WCAG 2.2.2). |
+| **D-05** | Galerie : **upload admin uniquement** via Decap, page `/galerie/`. | « J'upload moi-même » ; évite l'upload public et ses abus. | GIF seuls, sans texte, sans bordure, sans contrôle pause/stop — choix explicite du propriétaire, non-conformité WCAG 2.2.2 assumée pour les GIFs animés. |
 | **D-06** | RGPD : page `/confidentialite/`, règles de modération, contact dédié à créer. | Obligation d'information ; données chez GitHub Pages/GoatCounter/Cloudflare. | Le contact email reste une action ouverte ; la page est publiée avec un canal provisoire. |
 | **D-07** | Budget 0 € ; free tiers. | Contrainte forte. | Aucun service payant sans validation. |
 | **D-08** | Pas de modération a priori sur les commentaires. | « Quitte à pas mettre de modération (sauf antispam) ». | Publication immédiate ; suppression a posteriori via l'endpoint admin. |
@@ -49,7 +49,7 @@ Contraintes :
 | ID | Lot | Priorité | Statut | Responsable | Critères d'acceptation |
 |---|---|---|---|---|---|
 | **P1-T1** | Images éditoriales : couverture sur la page article, `coverAlt`, `coverCaption`, styles des images Markdown, aide CMS. | P1 | Fait (revue OK) | Développeur + Artiste | `/blog/test/` affiche la couverture ; image inline rendue avec le bon base path ; `alt` présent ; build OK. |
-| **P1-T2** | Galerie de GIF admin-only : collection Decap, page `/galerie/`, grille, masquage accessible, état vide. | P1 | Fait (revue OK) | Développeur + Artiste | Upload via `/admin/` visible sur `/galerie/` ; GIFs masquables ; `prefers-reduced-motion` ; responsive ; build OK. |
+| **P1-T2** | Galerie de GIF admin-only : collection Decap, page `/galerie/`, GIF seuls, état vide. | P1 | Fait (revue OK) | Développeur + Artiste | Upload via `/admin/` visible sur `/galerie/` ; aucun texte/bordure/contrôle ; responsive ; build OK. |
 | **P3-T1** | Worker commentaires : API D1/Turnstile, migrations, tests, workflow de déploiement. | P3 | Code prêt (revue OK) | Développeur backend | `GET`/`POST`/`DELETE`, CORS, validation, Turnstile, rate limit, cron de purge RGPD, tests `node --test` 20/20, aucun secret. |
 | **P3-T2** | Frontend commentaires : formulaire anonyme, liste, Turnstile, CSP, pages article + `/livre-d-or/`. | P3 | Code prêt (revue OK) | Développeur frontend + Artiste | Pseudo + message, publication immédiate, fallback si API non configurée, a11y, aucun `innerHTML` visiteur, Turnstile compact. |
 | **P3-T3** | Mise en service Cloudflare : D1 UE, Turnstile, secrets, variables GitHub, déploiement Worker. | P3 | Fait (test navigateur OK) | PO + propriétaire | Worker déployé, D1 migrée, secrets et variables définis, formulaire en ligne, publication testée. |
@@ -100,6 +100,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | Configuration Cloudflare effectuée : D1 `mon-skyblog-comments-eu` en EEUR, Worker déployé, secrets `TURNSTILE_SECRET`/`ADMIN_TOKEN`, variables GitHub, `COMMENTS_API` défini, Pages redéployé ; formulaire live. |
 | 25/11/2026 | Recette navigateur validée par le propriétaire et rotation des secrets exposés effectuée. Commentaires anonymes pleinement opérationnels. |
 | 25/11/2026 | GoatCounter `skyblog-cointroh` activé et redéployé : `count.js` global, widget accueil, endpoint `TOTAL.json` à 200. |
+| 25/11/2026 | Galerie épurée à la demande du propriétaire : GIF seuls, sans titre/description/texte/bordure, sans contrôle pause/stop ni JavaScript. Non-conformité WCAG 2.2.2 assumée et documentée. |
 | 25/11/2026 | Équipe nommée : **Arthas** (Product Owner), **Thrall** (Développeur), **Jaina** (Artiste / Dev Front). |
 
 ## 6. Règles de travail
