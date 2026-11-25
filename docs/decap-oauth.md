@@ -62,7 +62,7 @@ jeton n'est jamais écrit dans le dépôt, et seul le service OAuth détient le 
 
 | Option | Principe | Coût | Complexité | Confiance / dépendances | Recommandation |
 | --- | --- | --- | --- | --- | --- |
-| **A. Worker OAuth auto-hébergé** (Cloudflare Workers, ex. `sveltia-cms-auth`) | Vous déployez un petit service OAuth ; secrets dans les variables du worker ; compatible avec le flux OAuth attendu par Decap | Offre gratuite Cloudflare Workers généralement suffisante ; éventuellement quelques $/mois | Moyenne (compte Cloudflare, création d'une app GitHub, configuration de secrets) | Vous contrôlez le code et les secrets ; dépendance d'infrastructure à maintenir (worker) | **Recommandée** pour ce projet |
+| **A. Worker OAuth auto-hébergé** (Cloudflare Workers, ex. `sveltia-cms-auth`) | Vous déployez un petit service OAuth ; secrets dans les variables du worker ; implémente le protocole OAuth type Netlify attendu par Decap (compatibilité à valider) | Offre gratuite Cloudflare Workers généralement suffisante ; éventuellement quelques $/mois | Moyenne (compte Cloudflare, création d'une app GitHub, configuration de secrets) | Vous contrôlez le code et les secrets ; dépendance d'infrastructure à maintenir (worker) | **Recommandée** pour ce projet |
 | **B. Decap Turbo** (backend hébergé) | Les éditeurs se connectent avec un compte Turbo ; un proxy côté serveur gère GitHub, le cache et les permissions | Payant selon les plans (voir la page tarifs) | Faible (configuration `turbo-github` + `turbo_site_id`) | Dépendance à un service tiers hébergé ; édition sans compte GitHub | Bonne alternative si vous ne voulez pas maintenir de worker |
 | **C. Autres clients OAuth communautaires** (liste Decap « External OAuth Clients ») | Projets Node.js, Go, Python, serverless, PHP, Rust, etc. à héberger vous-même | Variable (hébergement du service) | Variable selon le projet choisi | Projets communautaires à auditer/maintenir ; compatibilité à vérifier | Possible, mais moins homogène que l'option A |
 
@@ -78,6 +78,15 @@ Decap CMS (endpoints `auth` et `callback`, jeton renvoyé par `postMessage`).
 > de la documentation GitHub historique ; la GitHub App est plus restrictive et donc préférable en
 > termes de moindre privilège. Les deux variantes sont décrites ci-dessous.
 
+> **Compatibilité à valider lors de la mise en place** : `sveltia-cms-auth` est aujourd'hui
+> documenté principalement pour **Sveltia CMS**. Il n'est **pas listé** dans la page officielle
+> Decap « External OAuth Clients » et ce n'est pas son cas d'usage documenté en priorité. Il
+> implémente toutefois le protocole OAuth de type Netlify (endpoints `auth`/`callback`, jeton
+> renvoyé par `postMessage`) que consomme le backend GitHub de Decap. **Validez donc la connexion
+> réelle (« Login with GitHub ») lors du test de production** ; si une incompatibilité apparaît
+> avec votre version de Decap, repliez-vous sur un client de l'option C (liste officielle Decap)
+> ou sur Decap Turbo (option B).
+
 ---
 
 ## 3. Option A — worker OAuth auto-hébergé, pas à pas
@@ -87,7 +96,7 @@ Decap CMS (endpoints `auth` et `callback`, jeton renvoyé par `postMessage`).
 | Valeur | Où elle vit | Exemple de forme | Remarque |
 | --- | --- | --- | --- |
 | `backend.repo` | `public/admin/config.yml` (**dans le dépôt**) | `<owner>/<repo>` | Dépôt réel du site, jamais `owner/repo` |
-| `backend.base_url` | `public/admin/config.yml` (**dans le dépôt**) | `https://sveltia-cms-auth.<sous-domaine>.workers.dev` | **Origine seule** du worker : pas de chemin, pas de slash final |
+| `backend.base_url` | `public/admin/config.yml` (**dans le dépôt**) | `https://sveltia-cms-auth.<sous-domaine>.workers.dev` | Origine du worker ; par convention **sans chemin ni slash final** (un slash final produirait un double slash dans `<base_url>/<auth_endpoint>`) |
 | `GITHUB_CLIENT_ID` | variables d'environnement **du worker** (pas dans le dépôt) | identifiant public de l'app GitHub | Peut rester côté serveur |
 | `GITHUB_CLIENT_SECRET` | **secret** du worker (jamais dans le dépôt) | — | À ne jamais committer, ni afficher |
 | `ALLOWED_DOMAINS` | variables d'environnement **du worker** | `sebastienzam.github.io` | Hôte du site, sans port ni chemin ; plusieurs valeurs séparées par des virgules |
@@ -109,7 +118,10 @@ Deux variantes ; choisissez-en **une**.
      personnalisé) ;
    - **Redirect URI** : `https://sveltia-cms-auth.<sous-domaine>.workers.dev/callback`
      (**chemin exact** `/callback`, à vérifier dans le README du worker) ;
-   - désactiver le webhook et le flux « device » ;
+   - **Expire user authorization tokens** : **coché** (recommandé : jetons à durée limitée) ;
+   - **Request user authorization (OAuth) during installation** : **décoché** ;
+   - **Enable Device Flow** : **décoché** ;
+   - **Webhook → Active** : **décoché** ;
    - permissions : **Contents: Read and write**, **Metadata: Read-only**, et **Pull requests:
      Read and write** uniquement si vous utilisez le workflow éditorial de Decap ; **Workflows**
      seulement si les éditeurs doivent modifier `.github/workflows/` (inutile ici) ;
@@ -185,8 +197,12 @@ backend:
 
 Points d'attention :
 
-- `base_url` est une **origine** : Decap compare l'origine du message `postMessage` renvoyé par le
-  worker ; un chemin ou un slash final peut faire échouer l'authentification ;
+- `base_url` : renseigner l'**origine** du worker, sans chemin et **sans slash final**. Dans le code
+  Decap, la vérification du `postMessage` compare l'origine extraite de `base_url` (un chemin y est
+  donc toléré par cette vérification) ; le risque réel d'un slash final est la concaténation
+  `${base_url}/${auth_endpoint}`, qui produirait une URL à double slash
+  (`https://…workers.dev//auth`) et une URL de worker mal formée. Une origine proprement formée
+  évite ces ambiguïtés ;
 - `auth_endpoint` doit correspondre au chemin exposé par le worker (`auth` par défaut). Le chemin
   complet appelé est `<base_url>/<auth_endpoint>` ;
 - `branch: main` doit être la branche où Decap écrit ; c'est aussi la branche qui déclenche le
@@ -194,10 +210,11 @@ Points d'attention :
 - `local_backend: true` reste présent : en local, Decap détecte `decap-server` sur
   `localhost:8081` et bascule sur le backend proxy, **sans OAuth ni `base_url`**. Ne pas retirer
   cette ligne sous prétexte de production : elle est ignorée hors localhost ;
-- `auth_scope` (option Decap, valeurs `repo` ou `public_repo`) permet de limiter le scope demandé
-  à GitHub si le dépôt est **public**. Par défaut, Decap demande `repo` (accès plus large) ; pour
-  un dépôt public, `public_repo` est plus restrictif. Si vous utilisez une GitHub App, le scope
-  OAuth est de toute façon encadré par les permissions de l'app.
+- `auth_scope` (option Decap, valeurs `repo` ou `public_repo`) ne s'applique **qu'avec une OAuth
+  App classique** : il limite le scope demandé à GitHub si le dépôt est **public**. Par défaut,
+  Decap demande `repo` (accès plus large) ; pour un dépôt public, `public_repo` est plus
+  restrictif. **Avec une GitHub App, `auth_scope` n'a aucun effet** : ce sont les permissions de
+  l'app (Contents, Pull requests…) qui déterminent les droits accordés.
 
 ### 3.5 Cas GitHub Pages
 
@@ -273,8 +290,14 @@ Pour un petit site, l'option A (worker dédié) reste généralement plus simple
 - [ ] **Validation du `state`** : le worker gère le paramètre `state` anti-CSRF (ne pas le
       désactiver ; vérifier ce comportement dans le code/README du worker choisi).
 - [ ] **Scope minimal** : GitHub App avec permissions limitées au dépôt (Contents write ; Pull
-      requests seulement si workflow éditorial) ; ou, en OAuth App, `auth_scope: public_repo` si le
-      dépôt est public (`repo` requis pour un dépôt privé — assumer ce périmètre).
+      requests seulement si workflow éditorial) ; ou, en OAuth App classique, `auth_scope:
+      public_repo` si le dépôt est public (`repo` requis pour un dépôt privé — assumer ce
+      périmètre). Rappel : **`auth_scope` est sans effet avec une GitHub App**, ce sont les
+      permissions de l'app qui s'appliquent.
+- [ ] **Expiration et rotation des jetons** : avec une GitHub App, laisser « **Expire user
+      authorization tokens** » **coché** (jetons à durée limitée, renouvelés via refresh token par
+      le worker). Sans expiration, un jeton volé reste valide jusqu'à révocation. En cas de doute,
+      révoquer les autorisations et régénérer les secrets, puis redéployer le worker.
 - [ ] **Origines restreintes** : `ALLOWED_DOMAINS` limité à l'hôte (ou aux hôtes) du site ;
       pas de wildcard trop large, pas de `localhost` en production.
 - [ ] **Seuls les collaborateurs avec push access** peuvent éditer (exigence du backend GitHub) ;
