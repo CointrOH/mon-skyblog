@@ -41,6 +41,9 @@ collections:
       - name: title
         label: Titre
         widget: string
+        pattern:
+          - '^.{3,}$'
+          - 'Le titre doit contenir au moins 3 caractères (schéma Astro).'
       - name: date
         label: Date de publication
         widget: datetime
@@ -50,6 +53,10 @@ collections:
       - name: description
         label: Description
         widget: text
+        hint: 'Au moins 10 caractères (contrainte du schéma Astro : le build échoue sinon).'
+        pattern:
+          - '^[\s\S]{10,}$'
+          - 'La description doit contenir au moins 10 caractères (requis par le schéma Astro).'
       - name: author
         label: Auteur
         widget: string

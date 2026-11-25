@@ -1,7 +1,7 @@
 ---
 title: Test
 date: 2026-11-25
-description: test
+description: "Article de test créé depuis l'interface d'administration Decap."
 author: moi
 tags:
   - test
