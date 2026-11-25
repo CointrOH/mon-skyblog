@@ -4,16 +4,13 @@ import { withBase } from '../utils/base.ts';
 const guestbookUrl = withBase('/livre-d-or/');
 ---
 
-<!-- Teaser du livre d'or : la page /livre-d-or/ explique que les messages sont
-     momentanément fermés. Aucun faux message ici. -->
+<!-- Teaser du livre d'or : la page /livre-d-or/ héberge les messages anonymes.
+     Aucun faux message ici. -->
 <section class="widget" id="livre-dor" aria-labelledby="livre-dor-titre">
   <h2 class="widget__title" id="livre-dor-titre">Livre d'or</h2>
-  <p>
-    Vous êtes passé par ici ? Le livre d'or prend une petite pause, le temps de choisir une
-    solution respectueuse de votre vie privée.
-  </p>
+  <p>Le livre d'or anonyme : un pseudo suffit, pas de compte à créer.</p>
   <p>
     <a href={guestbookUrl}>Voir le livre d'or →</a>
   </p>
-  <p class="widget__note">Le livre d'or anonyme revient bientôt.</p>
+  <p class="widget__note">Un pseudo suffit. Les messages sont publics.</p>
 </section>

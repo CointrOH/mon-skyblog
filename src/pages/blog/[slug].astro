@@ -91,7 +91,12 @@ const tags = article.data.tags;
       <Content />
     </div>
 
-    <Comments heading="Commentaires" sectionId="commentaires" />
+    <Comments
+      heading="Commentaires"
+      intro="Un souvenir à partager, une correction, une question ? Laissez un commentaire."
+      page={Astro.url.pathname}
+      sectionId="commentaires"
+    />
   </article>
 
   <ArticleNav previous={previous} next={next} />

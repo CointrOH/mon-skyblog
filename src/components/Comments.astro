@@ -1,10 +1,12 @@
 ---
 import { withBase } from '../utils/base.ts';
+import { commentsApi, turnstileSiteKey } from '../config/site.ts';
 
 interface Props {
   heading?: string;
   intro?: string;
   sectionId?: string;
+  page?: string;
   note?: string;
 }
 
@@ -12,27 +14,373 @@ const {
   heading = 'Commentaires',
   intro,
   sectionId = 'commentaires',
+  page = Astro.url.pathname,
   note,
 } = Astro.props;
+
+// Origine du Worker, sans slash final. `enabled` n'est vrai que si l'origine
+// est HTTPS et qu'une clé de site Turnstile est fournie : tant que ce n'est
+// pas le cas, le composant reste un placeholder sans formulaire ni requête.
+const apiBase = commentsApi.replace(/\/+$/, '');
+const enabled = /^https:\/\//.test(apiBase) && turnstileSiteKey.trim().length > 0;
 
 const privacyUrl = withBase('/confidentialite/');
 ---
 
-<!-- Commentaires momentanément fermés : aucun service tiers, script, iframe
-     ni formulaire. Ce composant reste partagé par les articles et le livre
-     d'or ; il n'embarque aucune collecte de données. -->
+<!-- Commentaires anonymes (pseudo + message), stockés dans Cloudflare D1 via
+     un Worker. Le composant est partagé par les articles et le livre d'or :
+     `page` identifie le fil (chemin de la page). Si les variables publiques
+     COMMENTS_API / TURNSTILE_SITE_KEY ne sont pas définies, aucun formulaire,
+     aucun script Turnstile et aucune requête réseau ne sont émis. -->
 <section class="comments" aria-labelledby={`${sectionId}-titre`}>
   <h2 id={`${sectionId}-titre`}>{heading}</h2>
 
-  {intro && <p class="comments__intro">{intro}</p>}
-  {note && <p class="comments__note">{note}</p>}
+  {
+    enabled ? (
+      <>
+        {intro && <p class="comments__intro">{intro}</p>}
+        {note && <p class="comments__note">{note}</p>}
+        <p class="comments__note">
+          <a href={privacyUrl}>Politique de confidentialité</a>
+        </p>
 
-  <p class="comments__note">
-    Les commentaires sont momentanément fermés. Une nouvelle version, sans compte à créer, arrive
-    bientôt.
-  </p>
+        <p
+          id={`${sectionId}-status`}
+          class="comments__status"
+          role="status"
+          aria-live="polite"
+          tabindex="-1"
+        >
+          Chargement des messages…
+        </p>
 
-  <p class="comments__note">
-    <a href={privacyUrl}>Politique de confidentialité</a>
-  </p>
+        <form
+          id={`${sectionId}-form`}
+          class="comment-form"
+          aria-label="Publier un commentaire"
+          novalidate
+        >
+          <p class="comment-form__note">
+            Pas de compte : un pseudo suffit. Votre message sera publié immédiatement et restera
+            public.
+          </p>
+
+          <div class="comment-form__field">
+            <label for={`${sectionId}-author`}>Pseudo</label>
+            <input
+              id={`${sectionId}-author`}
+              name="author"
+              type="text"
+              required
+              minlength="2"
+              maxlength="40"
+              autocomplete="nickname"
+            />
+          </div>
+
+          <div class="comment-form__field">
+            <label for={`${sectionId}-message`}>Message</label>
+            <textarea
+              id={`${sectionId}-message`}
+              name="message"
+              required
+              minlength="2"
+              maxlength="2000"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="comment-form__hp" aria-hidden="true">
+            <label for={`${sectionId}-website`}>Site web</label>
+            <input
+              id={`${sectionId}-website`}
+              name="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          <div
+            class="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-theme="light"
+            data-appearance="interaction-only"
+            data-size="compact"
+            data-language="fr"
+          >
+          </div>
+
+          <button type="submit" class="comment-form__submit">Publier le message</button>
+
+          <p
+            id={`${sectionId}-form-status`}
+            class="comment-form__status"
+            role="status"
+            aria-live="polite"
+            tabindex="-1"
+          ></p>
+        </form>
+
+        <ul id={`${sectionId}-list`} class="comments__list" aria-label="Messages publiés"></ul>
+
+        <noscript>
+          <p class="comments__note">
+            JavaScript est nécessaire pour afficher et publier les commentaires.
+          </p>
+        </noscript>
+
+        <script is:inline define:vars={{ apiBase, page, sectionId }}>
+          (function () {
+            // Toutes les données visiteur sont insérées avec textContent :
+            // aucun HTML brut n'est interprété, donc pas d'injection possible.
+            var statusRegion = document.getElementById(sectionId + '-status');
+            var form = document.getElementById(sectionId + '-form');
+            var formStatus = document.getElementById(sectionId + '-form-status');
+            var list = document.getElementById(sectionId + '-list');
+            var submitButton = form ? form.querySelector('.comment-form__submit') : null;
+
+            function setStatus(node, message, state) {
+              if (!node) return;
+              node.textContent = message;
+              if (state) {
+                node.setAttribute('data-state', state);
+              } else {
+                node.removeAttribute('data-state');
+              }
+            }
+
+            function focusStatus(node) {
+              if (!node) return;
+              try {
+                node.focus();
+              } catch (error) {
+                // Le focus est une amélioration : ne jamais casser la page.
+              }
+            }
+
+            function createComment(comment) {
+              var item = document.createElement('li');
+              item.className = 'comment';
+
+              var author = document.createElement('p');
+              author.className = 'comment__author';
+              author.textContent =
+                typeof comment.author === 'string' && comment.author.trim()
+                  ? comment.author
+                  : 'Anonyme';
+              item.appendChild(author);
+
+              var body = document.createElement('p');
+              body.className = 'comment__body';
+              body.textContent = typeof comment.message === 'string' ? comment.message : '';
+              item.appendChild(body);
+
+              var date = new Date(comment.created_at);
+              if (!isNaN(date.getTime())) {
+                var meta = document.createElement('p');
+                meta.className = 'comment__meta';
+                var time = document.createElement('time');
+                time.className = 'comment__date';
+                time.dateTime = date.toISOString();
+                time.textContent = date.toLocaleString('fr-FR', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                });
+                meta.appendChild(time);
+                item.appendChild(meta);
+              }
+
+              return item;
+            }
+
+            function renderComments(comments) {
+              if (!list) return;
+              list.replaceChildren();
+
+              if (!Array.isArray(comments) || comments.length === 0) {
+                var empty = document.createElement('li');
+                empty.className = 'comments__empty';
+                empty.textContent = "Aucun message pour l'instant. Soyez le premier.";
+                list.appendChild(empty);
+                return;
+              }
+
+              for (var i = 0; i < comments.length; i += 1) {
+                var comment = comments[i];
+                if (!comment || typeof comment !== 'object') continue;
+                list.appendChild(createComment(comment));
+              }
+            }
+
+            async function load() {
+              if (!statusRegion || !list) return;
+
+              try {
+                var response = await fetch(
+                  apiBase + '/comments?page=' + encodeURIComponent(page),
+                  {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'omit',
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error('HTTP ' + response.status);
+                }
+
+                var data = await response.json();
+                renderComments(data && data.comments);
+                setStatus(
+                  statusRegion,
+                  (data && Array.isArray(data.comments) ? data.comments.length : 0) +
+                    (data && Array.isArray(data.comments) && data.comments.length > 1
+                      ? ' messages affichés.'
+                      : ' message affiché.'),
+                  null
+                );
+              } catch (error) {
+                // Erreur réseau ou réponse invalide : on informe sans casser
+                // la page, et les messages déjà affichés restent visibles.
+                setStatus(statusRegion, 'Commentaires indisponibles pour le moment.', 'error');
+              }
+            }
+
+            if (form) {
+              form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                if (!formStatus) return;
+
+                var authorField = form.elements.namedItem('author');
+                var messageField = form.elements.namedItem('message');
+                var websiteField = form.elements.namedItem('website');
+                var author = authorField ? authorField.value.trim() : '';
+                var message = messageField ? messageField.value.trim() : '';
+
+                if (author.length < 2 || author.length > 40) {
+                  setStatus(formStatus, 'Le pseudo doit contenir entre 2 et 40 caractères.', 'error');
+                  focusStatus(formStatus);
+                  if (authorField) authorField.focus();
+                  return;
+                }
+
+                if (message.length < 2 || message.length > 2000) {
+                  setStatus(
+                    formStatus,
+                    'Le message doit contenir entre 2 et 2000 caractères.',
+                    'error'
+                  );
+                  focusStatus(formStatus);
+                  if (messageField) messageField.focus();
+                  return;
+                }
+
+                var turnstileToken = '';
+                try {
+                  if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+                    turnstileToken = window.turnstile.getResponse() || '';
+                  }
+                } catch (error) {
+                  turnstileToken = '';
+                }
+
+                if (!turnstileToken) {
+                  setStatus(
+                    formStatus,
+                    "La vérification anti-spam n'est pas terminée. Complétez-la puis réessayez.",
+                    'error'
+                  );
+                  focusStatus(formStatus);
+                  return;
+                }
+
+                if (submitButton) submitButton.disabled = true;
+                form.setAttribute('aria-busy', 'true');
+                setStatus(formStatus, 'Publication en cours…', null);
+
+                try {
+                  var response = await fetch(apiBase + '/comments', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Accept: 'application/json',
+                    },
+                    credentials: 'omit',
+                    body: JSON.stringify({
+                      page: page,
+                      author: author,
+                      message: message,
+                      turnstileToken: turnstileToken,
+                      website: websiteField ? websiteField.value : '',
+                    }),
+                  });
+
+                  var payload = null;
+                  try {
+                    payload = await response.json();
+                  } catch (error) {
+                    payload = null;
+                  }
+
+                  if (!response.ok) {
+                    setStatus(
+                      formStatus,
+                      payload && typeof payload.error === 'string' && payload.error.trim()
+                        ? payload.error
+                        : "L'envoi a échoué. Réessayez dans un instant.",
+                      'error'
+                    );
+                    focusStatus(formStatus);
+                    return;
+                  }
+
+                  form.reset();
+                  try {
+                    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+                      window.turnstile.reset();
+                    }
+                  } catch (error) {
+                    // Le widget se réinitialisera de lui-même au prochain envoi.
+                  }
+
+                  await load();
+                  setStatus(formStatus, 'Merci, votre message est publié.', 'success');
+                  focusStatus(formStatus);
+                } catch (error) {
+                  setStatus(
+                    formStatus,
+                    "Impossible d'envoyer le message pour le moment. Vérifiez votre connexion.",
+                    'error'
+                  );
+                  focusStatus(formStatus);
+                } finally {
+                  if (submitButton) submitButton.disabled = false;
+                  form.removeAttribute('aria-busy');
+                }
+              });
+            }
+
+            load();
+          })();
+        </script>
+
+        <script
+          is:inline
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+        ></script>
+      </>
+    ) : (
+      <>
+        <p class="comments__note">
+          Les commentaires sont en cours d'activation. Ils seront bientôt disponibles sans compte.
+        </p>
+        <p class="comments__note">
+          <a href={privacyUrl}>Politique de confidentialité</a>
+        </p>
+      </>
+    )
+  }
 </section>

@@ -63,6 +63,13 @@ jobs:
           # Actions → Variables). Vide tant qu'il n'est pas défini : le compteur
           # affiche alors « activation en cours ».
           PUBLIC_GOATCOUNTER_CODE: ${{ vars.GOATCOUNTER_CODE }}
+          # Commentaires anonymes : origine du Worker Cloudflare (sans slash
+          # final) et clé de site publique Turnstile. Variables publiques,
+          # jamais des secrets (elles finissent dans le HTML). Si l'une des
+          # deux est vide, le site affiche « commentaires en cours d'activation »
+          # sans formulaire ni requête.
+          PUBLIC_COMMENTS_API: ${{ vars.COMMENTS_API }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
 
   deploy:
     needs: build

@@ -1,0 +1,37 @@
+# Worker des commentaires anonymes de Mon Skyblog (D1 + Turnstile).
+#
+# La base D1 doit être créée dans l'Union européenne (région `eeur`) :
+#   npx wrangler@4.168.0 d1 create mon-skyblog-comments --location=eeur
+# En CI, le workflow remplace ce placeholder par la valeur de la variable
+# GitHub `D1_DATABASE_ID` avant les migrations et le déploiement. En local, le
+# placeholder suffit pour `wrangler dev` (D1 locale).
+#
+# Les secrets `TURNSTILE_SECRET` et `ADMIN_TOKEN` se définissent dans
+# Cloudflare (dashboard → Worker → Settings → Variables and Secrets, ou
+# `npx wrangler@4.168.0 secret put ...`). Ils ne doivent JAMAIS être écrits
+# dans ce dépôt ni dans le workflow GitHub Actions.
+name = "mon-skyblog-comments"
+main = "src/index.js"
+compatibility_date = "2026-11-25"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mon-skyblog-comments"
+database_id = "REMPLACER_PAR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[vars]
+# Origines autorisées pour les appels navigateur (CORS), séparées par des virgules.
+ALLOWED_ORIGINS = "https://cointroh.github.io,http://localhost:4321,http://127.0.0.1:4321"
+# Délai minimal entre deux commentaires d'une même IP (en secondes).
+RATE_LIMIT_SECONDS = "30"
+# Nombre maximal de commentaires renvoyés par page.
+MAX_COMMENTS = "200"
+
+# Purge horaire des empreintes de rate limit de plus de 24 h, même sans trafic
+# (la page confidentialité promet cette suppression automatique).
+# Minute 17 arbitraire pour éviter l'affluence de la minute 0.
+# Cron Triggers gratuits dans le plan Workers Free (5 par compte).
+[triggers]
+crons = ["17 * * * *"]

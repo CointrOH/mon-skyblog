@@ -6,12 +6,14 @@ const hasContactEmail = contactEmail.trim().length > 0;
 const cnilUrl = 'https://www.cnil.fr/fr/plaintes';
 const githubPrivacyUrl =
   'https://docs.github.com/fr/site-policy/privacy-policies/github-privacy-statement';
+const cloudflarePrivacyUrl = 'https://www.cloudflare.com/privacypolicy/';
+const turnstileUrl = 'https://developers.cloudflare.com/turnstile/';
 const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
 ---
 
 <BaseLayout
   title="Confidentialité"
-  description="Politique de confidentialité de Mon Skyblog : hébergement GitHub Pages, compteur GoatCounter sans cookie, droits RGPD."
+  description="Politique de confidentialité de Mon Skyblog : hébergement GitHub Pages, compteur GoatCounter sans cookie, commentaires anonymes Cloudflare D1 et Turnstile, droits RGPD."
 >
   <h1>Confidentialité</h1>
 
@@ -34,9 +36,9 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
           </>
         ) : (
           <>
-            L'adresse de contact dédiée est en cours de création. En attendant, ne publiez pas de
-            données personnelles sur le site : les demandes pourront être adressées dès sa mise en
-            place.
+            L'adresse de contact dédiée est en cours de création. En attendant, les demandes de
+            suppression ou d'exercice des droits peuvent être adressées au webmaster via
+            l'administration du site. Ne publiez pas de données personnelles dans un commentaire.
           </>
         )
       }
@@ -46,6 +48,20 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
   <section class="panel" aria-labelledby="donnees-titre">
     <h2 id="donnees-titre">Quelles données sont traitées ?</h2>
     <ul>
+      <li>
+        <strong>Commentaires</strong> : le <strong>pseudo</strong> choisi (2 à 40 caractères), le
+        <strong>message</strong> publié (2 à 2000 caractères) et la <strong>date</strong> de
+        publication. Aucun email, aucun compte visiteur, aucun mot de passe. Le petit champ
+        « website » du formulaire est un piège à robots : il doit rester vide et son contenu
+        éventuel n'est jamais publié.
+      </li>
+      <li>
+        <strong>Anti-spam</strong> : un <strong>hash d'adresse IP</strong> est calculé par le Worker
+        Cloudflare pour limiter le débit (30 secondes entre deux messages d'une même empreinte).
+        L'adresse IP brute n'est <strong>jamais stockée</strong> ; le hash est conservé au maximum
+        <strong>24 heures</strong>. La vérification anti-robots est assurée par
+        <a href={turnstileUrl}>Cloudflare Turnstile</a>.
+      </li>
       <li>
         <strong>Mesure d'audience</strong> (GoatCounter) : pages vues et totaux agrégés. Les
         collectes optionnelles de GoatCounter (navigateur, taille d'écran, localisation) sont
@@ -59,14 +75,24 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
       </li>
     </ul>
     <p>
-      Les commentaires sont momentanément fermés ; aucune donnée de commentaire n'est collectée
-      pour l'instant. Une solution anonyme est en cours de choix.
+      Lorsqu'ils sont activés, les commentaires sont anonymes : un pseudo suffit, sans inscription.
+      Les messages sont publiés immédiatement et restent publics.
     </p>
   </section>
 
   <section class="panel" aria-labelledby="finalites-titre">
     <h2 id="finalites-titre">Pourquoi et sur quelle base légale ?</h2>
     <ul>
+      <li>
+        <strong>Publier les messages</strong> : rendre publics les commentaires et messages du livre
+        d'or. Base légale : le <strong>consentement</strong>, matérialisé par la publication
+        volontaire du message après information.
+      </li>
+      <li>
+        <strong>Lutter contre le spam et les abus</strong> : Turnstile, honeypot et limitation de
+        débit via un hash d'IP à durée courte. Base légale : l'intérêt légitime du webmaster à
+        protéger le site et ses visiteurs.
+      </li>
       <li>
         <strong>Mesurer l'audience du site</strong> : base légale l'intérêt légitime du webmaster à
         connaître la fréquentation de son journal, avec une mesure agrégée et sans cookie.
@@ -82,6 +108,11 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
     <h2 id="destinataires-titre">Qui reçoit les données ?</h2>
     <ul>
       <li>
+        <strong>Cloudflare</strong> (Worker, base de données D1 hébergée dans l'Union européenne et
+        service Turnstile) : hébergement et stockage des commentaires, vérification anti-robots.
+        Voir la <a href={cloudflarePrivacyUrl}>politique de confidentialité de Cloudflare</a>.
+      </li>
+      <li>
         <strong>GitHub</strong> (GitHub Pages, pour l'hébergement du site) — voir la{' '}
         <a href={githubPrivacyUrl}>politique de confidentialité de GitHub</a>.
       </li>
@@ -91,17 +122,29 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
         <a href={goatcounterPrivacyUrl}>politique de confidentialité de GoatCounter</a>.
       </li>
     </ul>
-    <p>Aucune donnée n'est vendue ni transmise à des fins publicitaires.</p>
+    <p>
+      Les commentaires publiés sont visibles par tous les visiteurs du site. Aucune donnée n'est
+      vendue ni transmise à des fins publicitaires.
+    </p>
   </section>
 
   <section class="panel" aria-labelledby="durees-titre">
     <h2 id="durees-titre">Combien de temps ?</h2>
     <ul>
       <li>
+        <strong>Commentaires</strong> : conservés jusqu'à leur suppression par le webmaster ou sur
+        demande de la personne concernée. Ils restent publics tant qu'ils existent.
+      </li>
+      <li>
+        <strong>Hash d'IP anti-spam</strong> : conservé au maximum <strong>24 heures</strong>, puis
+        supprimé automatiquement. L'IP brute n'est jamais stockée.
+      </li>
+      <li>
         <strong>Compteur</strong> : totaux agrégés, sans donnée individuelle conservée par le site.
       </li>
       <li>
-        <strong>Journaux d'hébergement</strong> : selon la durée de conservation de GitHub.
+        <strong>Journaux d'hébergement</strong> : selon la durée de conservation de GitHub et de
+        Cloudflare.
       </li>
     </ul>
   </section>
@@ -110,8 +153,11 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
     <h2 id="droits-titre">Vos droits</h2>
     <p>
       Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de
-      portabilité sur vos données. Pour l'exercer, utilisez le contact indiqué plus haut, sans
-      publier d'informations personnelles sur le site.
+      portabilité sur vos données. Vous pouvez demander la <strong>suppression d'un message</strong>
+      via le contact indiqué plus haut (l'adresse dédiée sera publiée dès sa création) ou auprès de
+      l'administration du site. Indiquez le message concerné et, si possible, sa date de
+      publication : un commentaire étant anonyme, aucun compte ne permet de le retrouver
+      automatiquement.
     </p>
     <p>
       Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à
@@ -123,7 +169,10 @@ const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
     <h2 id="cookies-titre">Cookies</h2>
     <p>
       Le site ne dépose aucun cookie publicitaire ni traceur. GoatCounter fonctionne sans cookie.
-      Aucun service de commentaires tiers n'est chargé tant que la fonctionnalité est fermée.
+      <strong>Turnstile</strong> est un service de vérification anti-robots fourni par Cloudflare :
+      il peut utiliser des cookies ou stockages techniques strictement nécessaires à la
+      vérification. Sa politique est celle de Cloudflare (voir le lien ci-dessus) ; aucun cookie
+      publicitaire n'est déposé par le site.
     </p>
     <p>Aucune bannière n'est affichée par le site.</p>
   </section>

@@ -13,7 +13,8 @@
    7. Marquee (CSS, pas de <marquee>)
    8. Accueil : grille et cartes d'articles
    9. Sidebar & widgets (profil, compteur, livre d'or, webring, badges)
-   10. Article : fil d'Ariane, en-tête, couverture, prose, images, commentaires, prev/next
+   10. Article : fil d'Ariane, en-tête, couverture, prose, images, commentaires
+       (liste, statut, formulaire anonyme), prev/next
    11. Galerie (contrôles, grille de GIF, état vide)
    12. Page confidentialité
    13. Footer
@@ -885,7 +886,7 @@ main {
   font-style: italic;
 }
 
-/* Commentaires de démonstration */
+/* Commentaires : module anonyme (Worker + D1 + Turnstile), sans iframe tierce. */
 .comments {
   margin-top: 1.6rem;
   padding-top: 1rem;
@@ -916,26 +917,6 @@ main {
   vertical-align: middle;
 }
 
-/* Intégration Giscus : cadre uniquement, l'intérieur de l'iframe est cross-origin.
-   Pas de hauteur fixe : l'iframe doit pouvoir grandir avec le fil de discussion. */
-.comments__embed {
-  margin: 0.8rem 0 0.6rem;
-  min-height: 10rem;
-  padding: 0.5rem;
-  background: var(--sk-panel);
-  border: 3px inset var(--sk-border);
-  overflow: hidden;
-}
-
-.comments__embed iframe,
-.giscus-frame {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  border: 0;
-}
-
 .comments__note {
   margin: 0.7rem 0 0;
   color: var(--sk-muted);
@@ -948,7 +929,7 @@ main {
   color: var(--sk-link);
 }
 
-/* Repli sans JavaScript ou sans iframe : information + lien vers le livre d'or. */
+/* Repli sans JavaScript : information + lien vers le livre d'or. */
 .comments__fallback {
   margin: 0.8rem 0 0;
   padding: 0.8rem 0.9rem;
@@ -961,18 +942,256 @@ main {
   color: var(--sk-link);
 }
 
+/* Statut du module (chargement, erreur, succès) : annoncé via role="status". */
+.comments__status,
+.comment-form__status {
+  margin: 0.7rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* Un statut vide ne réserve ni espace ni bordure. */
+.comments__status:empty,
+.comment-form__status:empty {
+  display: none;
+}
+
+/* États posés par le JS : data-state="error" | "success" (source de vérité). */
+.comments__status[data-state='error'],
+.comment-form__status[data-state='error'] {
+  padding: 0.35rem 0.55rem;
+  background: #fff0f5;
+  border-left: 4px solid var(--sk-magenta);
+  color: #8a0039;
+  font-weight: bold;
+}
+
+.comments__status[data-state='success'],
+.comment-form__status[data-state='success'] {
+  padding: 0.35rem 0.55rem;
+  background: #edf8ee;
+  border-left: 4px solid #1b7a3d;
+  color: #0b5a2b;
+  font-weight: bold;
+}
+
+/* Formulaire anonyme : panneau crème, bordure ridge et ombre dure. */
+.comment-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 1rem 0 1.1rem;
+  padding: 0.95rem 1rem 1.05rem;
+  background: var(--sk-panel);
+  border: var(--panel-border);
+  box-shadow: var(--hard-shadow);
+}
+
+.comment-form__note {
+  margin: 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+/* Le label passe au-dessus du champ, le champ occupe toute la largeur. */
+.comment-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+/* Le markup actuel laisse les champs sans classe : on double les sélecteurs
+   pour couvrir aussi `.comment-form__label/__input/__textarea` du gabarit. */
+.comment-form__field > label,
+.comment-form__label {
+  color: var(--sk-ink);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.comment-form__field > input,
+.comment-form__field > textarea,
+.comment-form__input,
+.comment-form__textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  background: #fffdf5;
+  border: 3px inset var(--sk-border);
+  border-radius: 0;
+  color: var(--sk-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.comment-form__field > textarea,
+.comment-form__textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.comment-form__field > input::placeholder,
+.comment-form__field > textarea::placeholder,
+.comment-form__input::placeholder,
+.comment-form__textarea::placeholder {
+  color: var(--sk-muted);
+  opacity: 1;
+}
+
+.comment-form__field > input:disabled,
+.comment-form__field > textarea:disabled,
+.comment-form__input:disabled,
+.comment-form__textarea:disabled {
+  background: #efe9dc;
+  color: var(--sk-muted);
+  cursor: not-allowed;
+}
+
+/* Signal d'erreur de champ, indépendant du focus visible global. */
+.comment-form__field > input[aria-invalid='true'],
+.comment-form__field > textarea[aria-invalid='true'],
+.comment-form__input[aria-invalid='true'],
+.comment-form__textarea[aria-invalid='true'] {
+  background: #fff7fa;
+  border-color: var(--sk-magenta);
+}
+
+/* Honeypot : hors écran mais remplissable par les bots (jamais display:none). */
+.comment-form__hp {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Widget Turnstile : centré, largeur bornée, aucune hauteur imposée.
+   `safe center` évite de rogner le début si le widget dépasse (mobile). */
+.cf-turnstile {
+  display: flex;
+  justify-content: center;
+  justify-content: safe center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0.15rem 0;
+  overflow-x: auto;
+}
+
+.comment-form__submit {
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0.1rem 0 0;
+  padding: 0.55rem 1.15rem;
+  background: var(--sk-yellow);
+  border: 3px outset var(--sk-border);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+  color: var(--sk-ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Rappel du focus global : l'ombre dure du bouton masquerait le halo jaune. */
+.comment-form__submit:focus-visible {
+  outline: 3px solid var(--sk-focus) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px var(--sk-yellow);
+}
+
+.comment-form__submit:hover {
+  background: var(--sk-magenta);
+  border-color: var(--sk-magenta);
+  color: #ffffff;
+}
+
+.comment-form__submit:active:not(:disabled) {
+  border-style: inset;
+  box-shadow: none;
+}
+
+/* Bouton désactivé : couleurs explicites, contraste conservé, pas d'opacité nulle. */
+.comment-form__submit:disabled,
+.comment-form__submit[aria-disabled='true'] {
+  background: #e4ded0;
+  border-color: #8c7d85;
+  box-shadow: none;
+  color: #3d3440;
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+/* Envoi en cours : état enfoncé, contraste conservé, curseur d'attente.
+   Placé après :disabled pour primer quand le formulaire est aussi aria-busy. */
+.comment-form[aria-busy='true'] .comment-form__submit,
+.comment-form__submit[aria-busy='true'] {
+  background: var(--sk-panel-alt);
+  border-color: var(--sk-border);
+  border-style: inset;
+  box-shadow: none;
+  color: var(--sk-ink);
+  cursor: progress;
+}
+
+/* Le gap du formulaire gère déjà l'espace au-dessus du statut interne. */
+.comment-form > .comment-form__status {
+  margin-top: 0;
+}
+
+/* Liste vide : panneau discret, texte italique. */
+.comments__empty {
+  margin: 0.8rem 0;
+  padding: 0.8rem 0.9rem;
+  background: #fffaf0;
+  border: 2px dashed var(--sk-border);
+  color: var(--sk-ink-soft);
+  font-size: 0.92rem;
+  font-style: italic;
+}
+
+.comments__empty :last-child {
+  margin-bottom: 0;
+}
+
+/* Le composant actuel insère l'état vide comme un <li> de la liste. */
+.comments__list > .comments__empty {
+  margin: 0;
+}
+
 .comments__list {
   display: grid;
   gap: 0.8rem;
   margin: 0 0 0.8rem;
   padding: 0;
+  min-width: 0;
   list-style: none;
 }
 
 .comment {
+  min-width: 0;
   padding: 0.6rem 0.7rem;
   background: #fffaf0;
   border: 2px groove var(--sk-border);
+  overflow-wrap: anywhere;
 }
 
 .comment__author {
@@ -982,10 +1201,21 @@ main {
   color: var(--sk-purple);
 }
 
+/* Les messages peuvent contenir des retours à la ligne saisis par l'auteur. */
 .comment__body {
   margin: 0;
   font-size: 0.95rem;
   font-style: italic;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Date posée par le JS après le message. */
+.comment__meta {
+  margin: 0.35rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
 }
 
 /* Navigation précédent / suivant */
@@ -1343,6 +1573,10 @@ main:has(> section.panel) {
     padding: 0.8rem 0.8rem 1rem;
   }
 
+  .comment-form {
+    padding: 0.85rem 0.8rem 0.95rem;
+  }
+
   .article-nav__list {
     grid-template-columns: 1fr;
   }
@@ -1391,6 +1625,22 @@ main:has(> section.panel) {
   .counter__digit {
     min-width: 1.3rem;
     font-size: 1.2rem;
+  }
+
+  /* Formulaire : marges internes réduites, bouton pleine largeur. */
+  .comment-form {
+    gap: 0.8rem;
+    padding: 0.8rem 0.65rem 0.9rem;
+  }
+
+  .comment-form__submit {
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .comments__status,
+  .comment-form__status {
+    font-size: 0.76rem;
   }
 }
 

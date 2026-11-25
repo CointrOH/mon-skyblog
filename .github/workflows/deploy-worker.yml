@@ -1,0 +1,80 @@
+name: Deploy comments Worker
+
+# Déploiement MANUEL uniquement tant que les ressources Cloudflare ne sont pas
+# créées (base D1, widget Turnstile, secrets Worker) : un déclencheur `push`
+# sur `worker/**` serait rouge inutilement. Une fois la mise en place terminée,
+# on pourra ajouter :
+#
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'worker/**'
+#       - '.github/workflows/deploy-worker.yml'
+#
+# Secrets GitHub requis (Settings → Secrets and variables → Actions) :
+#   - CLOUDFLARE_API_TOKEN : token API avec « Workers Scripts:Edit » et « D1:Edit »
+#   - CLOUDFLARE_ACCOUNT_ID
+#
+# Variable GitHub requise (publique, pas un secret) :
+#   - D1_DATABASE_ID : identifiant de la base D1, injecté dans wrangler.toml
+#     avant les migrations et le déploiement.
+#
+# Les secrets TURNSTILE_SECRET et ADMIN_TOKEN ne passent PAS par GitHub : ce
+# sont des secrets du Worker, définis dans Cloudflare (dashboard ou
+# `npx wrangler@4.168.0 secret put ...`). Ils restent attachés au Worker lors des
+# déploiements et ne doivent jamais apparaître dans ce dépôt.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: comments-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # Le dépôt garde le placeholder pour le développement local ; en CI,
+      # le database_id est injecté depuis la variable GitHub D1_DATABASE_ID
+      # (publique, ce n'est pas un secret). Échoue explicitement si absente.
+      - name: Inject D1 database ID
+        working-directory: worker
+        env:
+          D1_DATABASE_ID: ${{ vars.D1_DATABASE_ID }}
+        run: |
+          if [ -z "${D1_DATABASE_ID}" ]; then
+            echo "::error::Variable GitHub D1_DATABASE_ID manquante (Settings → Secrets and variables → Actions → Variables)."
+            exit 1
+          fi
+          sed -i "s/REMPLACER_PAR_D1_DATABASE_ID/${D1_DATABASE_ID}/" wrangler.toml
+          if grep -q 'REMPLACER_PAR_D1_DATABASE_ID' wrangler.toml; then
+            echo "::error::Le placeholder database_id n'a pas pu être remplacé."
+            exit 1
+          fi
+
+      # Les migrations sont idempotentes (IF NOT EXISTS) et s'appliquent avant
+      # le déploiement du code qui les utilise.
+      - name: Apply D1 migrations
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.168.0 d1 migrations apply mon-skyblog-comments --remote
+
+      - name: Deploy Worker
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.168.0 deploy

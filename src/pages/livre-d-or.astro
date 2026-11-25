@@ -5,23 +5,25 @@ import Comments from '../components/Comments.astro';
 
 <BaseLayout
   title="Livre d'or"
-  description="Le livre d'or de Mon Skyblog : momentanément fermé, le temps de choisir une solution anonyme."
+  description="Le livre d'or anonyme de Mon Skyblog : laissez un message sans compte à créer."
 >
   <h1>Livre d'or</h1>
 
   <div class="panel">
     <p>
-      Avant, chaque page perso avait son livre d'or. Celui-ci prend une petite pause, le temps de
-      trouver une solution respectueuse de votre vie privée.
+      Avant, chaque page perso avait son livre d'or. Celui-ci prend la suite, sans compte à créer.
     </p>
     <p>
-      Le livre d'or est momentanément fermé. Une version anonyme arrive bientôt.
+      Le livre d'or anonyme : un pseudo suffit, pas de compte à créer. Les messages sont publics et
+      publiés immédiatement.
     </p>
   </div>
 
   <Comments
     heading="Les messages"
-    intro="Aucun message ne peut être déposé pour le moment."
+    intro="Un bonjour, un souvenir du 56k, une critique constructive ? Écrivez votre message ci-dessous."
+    note="Les messages sont publics et publiés immédiatement. Ne publiez pas de données sensibles."
+    page={Astro.url.pathname}
     sectionId="livre-d-or-commentaires"
   />
 </BaseLayout>

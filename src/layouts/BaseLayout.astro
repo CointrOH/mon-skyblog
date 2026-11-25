@@ -1,7 +1,7 @@
 ---
 import '../styles/skyblog.css';
 import { withBase } from '../utils/base.ts';
-import { goatcounterCode } from '../config/site.ts';
+import { goatcounterCode, commentsApi } from '../config/site.ts';
 import Banner from '../components/Banner.astro';
 import Nav from '../components/Nav.astro';
 import Marquee from '../components/Marquee.astro';
@@ -21,6 +21,41 @@ const goatcounter = /^[a-z0-9-]+$/.test(goatcounterCode) ? goatcounterCode : '';
 
 const siteName = 'Mon Skyblog';
 const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
+
+// Origine du Worker de commentaires, si l'URL publique est valide. Elle seule
+// est autorisée en connect-src : on n'ajoute pas de joker pour les appels POST
+// ni pour la lecture des messages. Vide = commentaires désactivés (placeholder).
+let commentsOrigin = '';
+try {
+  const url = new URL(commentsApi);
+  if (url.protocol === 'https:') commentsOrigin = url.origin;
+} catch {
+  commentsOrigin = '';
+}
+
+// CSP des pages publiques. Exceptions volontaires et commentées :
+// - script-src : gc.zgo.at (GoatCounter) et challenges.cloudflare.com
+//   (script Turnstile, chargé uniquement si les commentaires sont actifs) ;
+// - img-src : data: pour le pixel transparent de la galerie et https: pour
+//   les GIF externes éventuels ;
+// - connect-src : total GoatCounter (*.goatcounter.com, gc.zgo.at),
+//   vérification Turnstile (challenges.cloudflare.com) et origine du Worker
+//   de commentaires (commentsOrigin, si configurée) ;
+// - frame-src : challenges.cloudflare.com, qui affiche l'iframe Turnstile
+//   (interaction-only) ; aucun autre iframe tiers n'est autorisé.
+// La page /admin/ a son propre HTML et n'inclut pas cette CSP.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://gc.zgo.at https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  `connect-src 'self' https://*.goatcounter.com https://gc.zgo.at https://challenges.cloudflare.com${commentsOrigin ? ` ${commentsOrigin}` : ''}`,
+  'frame-src https://challenges.cloudflare.com',
+  "font-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
 ---
 
 <!doctype html>
@@ -30,18 +65,9 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <!-- Politique de sécurité du contenu (CSP) des pages publiques.
-         Exceptions volontaires, limitées au service de mesure retenu :
-         - script-src : gc.zgo.at (script du compteur GoatCounter) ;
-         - img-src : data: pour le pixel transparent de la galerie et https:
-           pour les GIF externes éventuels ;
-         - connect-src : total du compteur GoatCounter (*.goatcounter.com,
-           gc.zgo.at) ;
-         - frame-src 'none' : aucun iframe tiers (commentaires fermés).
-         La page /admin/ a son propre HTML et n'inclut pas cette CSP. -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.goatcounter.com https://gc.zgo.at; frame-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    />
+         Voir le détail des exceptions (GoatCounter, Turnstile, Worker D1)
+         dans le script de ce layout ; la page /admin/ n'inclut pas cette CSP. -->
+    <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{fullTitle}</title>
   </head>

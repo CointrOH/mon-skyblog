@@ -141,7 +141,7 @@ rejet, avec explication de la cause puis correction (pas d'improvisation) :
 | **Validation navigateur** | Rendu et connexion admin validés par le propriétaire (25/11/2026) ; conserver la recette §8 pour les évolutions — responsive 320–375 px / 800×600 / desktop, reduced-motion, pause du marquee au clavier, focus, webring | Suivi des évolutions |
 | **Audit npm** | 7 (prod) / 11 (total) alertes `high` transitives, sans correctif amont dans les versions épinglées ; réévaluer à chaque montée de version de Decap, ne pas forcer de changement majeur | Suivi régulier |
 | **Médias et base de projet** | Réglé pour les pages publiées (réécriture base-aware au rendu via `rehype-base-images.mjs`) ; seuls les aperçus d'images dans l'interface admin restent absolus et peuvent ne pas s'afficher sous une base de projet | Suivi mineur |
-| **Page article et `cover`** | Le `cover` du frontmatter est géré par les cartes d'accueil mais pas affiché en tête d'article (non bloquant) | Confort / évolution |
+| **Page article et `cover`** | Corrigé : la couverture s'affiche en tête d'article (`coverAlt` / `coverCaption`), en plus des cartes d'accueil | Fait |
 | **Worker OAuth** | Dépendance d'infrastructure à maintenir (mises à jour de sécurité, quotas, disponibilité Cloudflare) ; épingler la version déployée | Suivi régulier |
 | **Accès GitHub** | Decap exige un accès en push ; retirer les anciens collaborateurs ; envisager `publish_mode: editorial_workflow` et/ou des protections de branche | Avant ouverture aux éditeurs |
 | **Licence** | Aucun fichier `LICENSE` ajouté ; à définir si le dépôt devient public | À décider |
@@ -160,7 +160,8 @@ système). À vérifier à la main sur le site servi (`npm run dev` ou `npm run 
 6. Clavier : Tab → skip-link visible ; focus noir/jaune ; Tab jusqu'à « Pause du défilé » puis
    Espace → le texte s'arrête et le libellé devient « Reprendre le défilé ».
 7. Article : fil d'Ariane, tags, prose (bloc-citation, code, séparateur pointillé), commentaires
-   étiquetés « démonstration », navigation précédent/suivant, lien retour.
+   anonymes (formulaire + Turnstile si configuré, placeholder sinon), navigation précédent/suivant,
+   lien retour.
 8. Page 404, favicon d'onglet, liens du webring ouverts dans un nouvel onglet (mention
    « nouvelle fenêtre » pour les lecteurs d'écran).
 
@@ -180,20 +181,29 @@ système). À vérifier à la main sur le site servi (`npm run dev` ou `npm run 
 Le cadrage de novembre 2026 (voir [`../BACKLOG.md`](../BACKLOG.md)) fait évoluer le site au-delà du
 périmètre initial T1–T6 : les promesses « zéro JS public » et « zéro requête externe » sont
 remplacées par un JavaScript minimal et documenté, et les éléments factices par un vrai service
-gratuit (le compteur GoatCounter). Les commentaires restent momentanément fermés. Les sections 1
-à 6 décrivent l'état initial et restent un historique : elles ne reflètent plus l'état courant.
+gratuit (le compteur GoatCounter). Les commentaires anonymes sont désormais retenus et implémentés
+côté site (composant `Comments`, page `/livre-d-or/`) : ils reposent sur un Worker Cloudflare + D1
++ Turnstile, avec un placeholder propre tant que les variables publiques ne sont pas définies. Les
+sections 1 à 6 décrivent l'état initial et restent un historique : elles ne reflètent plus l'état
+courant.
 
 | ID | Décision | Mise en œuvre |
 | --- | --- | --- |
-| **D-01** | JavaScript autorisé, contenu lisible sans JS | GoatCounter et scripts inline (galerie, compteur) ; replis `<noscript>` et messages d'erreur |
+| **D-01** | JavaScript autorisé, contenu lisible sans JS | GoatCounter, scripts inline (galerie, compteur, commentaires) ; replis `<noscript>` et messages d'erreur |
 | **D-02** | Images de couverture et images dans le corps | `cover` / `coverAlt` / `coverCaption`, figure `.article__cover`, aide CMS, styles `.prose img` |
-| **D-03** | Giscus écarté : impose un compte GitHub ; commentaires momentanément fermés, solution anonyme à valider | composant `Comments.astro` partagé (placeholder), page `/livre-d-or/` ; aucun script, iframe ni formulaire |
+| **D-03** | **Giscus rejeté** (compte GitHub obligatoire) ; **Worker Cloudflare + D1 + Turnstile retenu** pour des commentaires anonymes | composant `Comments.astro` partagé (articles + `/livre-d-or/`, `page` = chemin), formulaire pseudo + message, Turnstile interaction-only, honeypot ; placeholder sans formulaire/script si `COMMENTS_API` ou `TURNSTILE_SITE_KEY` manque |
 | **D-04** | Compteur GoatCounter | script de comptage global chargé par `BaseLayout`, widget `VisitCounter`, variable `GOATCOUNTER_CODE`, total mis en cache 4 h |
 | **D-05** | Galerie admin-only | collection `gallery`, page `/galerie/`, masquage accessible et `prefers-reduced-motion` |
-| **D-06** | Page confidentialité et RGPD | `/confidentialite/`, contact dédié à créer, sous-traitants documentés |
-| **D-07** | Budget 0 € | GoatCounter en free tier, aucune dépendance payante |
-| **D-08** | Pas de modération a priori | commentaires momentanément fermés : aucune modération à assurer ; règles à définir si une solution anonyme est validée |
+| **D-06** | Page confidentialité et RGPD | `/confidentialite/`, contact dédié à créer, sous-traitants documentés (dont Cloudflare) |
+| **D-07** | Budget 0 € | GoatCounter en free tier, Cloudflare Workers/D1/Turnstile en free tier, aucune dépendance payante |
+| **D-08** | Pas de modération a priori | messages publiés immédiatement puis conservés jusqu'à suppression ; anti-spam Turnstile + honeypot + limitation de débit par hash d'IP (24 h), sans filtrage éditorial préalable |
+| **D-09** | **Commentaires anonymes validés par le propriétaire** : publication immédiate, pas de compte, pas d'email | Worker Cloudflare (`GET/POST /comments`), base **D1** en UE (`page`, `author`, `message`, `created_at`), secrets Cloudflare `TURNSTILE_SECRET` et `ADMIN_TOKEN`, binding D1, variables publiques `COMMENTS_API` / `TURNSTILE_SITE_KEY` dans GitHub Actions ; `/livre-d-or/` et articles ; page `/confidentialite/` mise à jour (données, finalités, Cloudflare, durées, droits, cookies) |
 
-Les actions humaines restantes (choix d'une solution anonyme de commentaires, création du site
-GoatCounter, adresse de contact RGPD, recette navigateur) sont suivies dans le `BACKLOG.md` §4 et
-le README.
+Les données de commentaires (pseudo, message, date) sont publiques ; seul un hash d'IP est conservé
+24 h pour la limitation de débit, jamais l'IP brute. Aucun email ni compte visiteur n'est collecté.
+Les secrets Cloudflare (`TURNSTILE_SECRET`, `ADMIN_TOKEN`) et le binding D1 vivent uniquement côté
+Cloudflare et ne sont jamais committés. Le composant `Comments` n'émet aucune requête et n'affiche
+aucun formulaire tant que `COMMENTS_API` et `TURNSTILE_SITE_KEY` ne sont pas définies.
+
+Les actions humaines restantes (déploiement du Worker et de la base D1, création du site GoatCounter,
+adresse de contact RGPD, recette navigateur) sont suivies dans le `BACKLOG.md` §4 et le README.

@@ -4,10 +4,10 @@
 
 Journal rétro « Skyblog 1990-2000 » construit avec **Astro** et éditable via **Decap CMS**.
 Articles de démonstration, images de couverture et images dans le texte, galerie de GIF alimentée
-depuis l'administration, commentaires momentanément fermés (Giscus écarté car il imposait un
-compte GitHub ; solution anonyme à valider), compteur **GoatCounter**, page de confidentialité,
-thème accessible et volontairement daté (bannière, marquee, webring), rendu statique déployable
-sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN).
+depuis l'administration, **commentaires anonymes** (pseudo + message, sans compte) via un **Worker
+Cloudflare + D1 + Turnstile**, compteur **GoatCounter**, page de confidentialité, thème accessible
+et volontairement daté (bannière, marquee, webring), rendu statique déployable sur GitHub Pages, et
+une administration auto-hébergée en `/admin/` (aucun CDN).
 
 ## Fonctionnalités
 
@@ -21,9 +21,12 @@ sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN)
 - **CMS Decap** sur `/admin/` : interface en français, paquet npm auto-hébergé (aucun script
   distant), écriture directe des fichiers Markdown en local via `decap-server` ; collections
   `blog` et `gallery`.
-- **Commentaires momentanément fermés** : Giscus a été écarté car il imposait un compte GitHub ;
-  une solution anonyme reste à valider. Les pages d'article et `/livre-d-or/` affichent un
-  placeholder commun, sans script, iframe ni formulaire.
+- **Commentaires anonymes** : un pseudo et un message, sans email ni compte visiteur. Les messages
+  sont publiés immédiatement dans un Worker **Cloudflare** (stockage **D1**) et vérifiés par
+  **Turnstile** (interaction-only) + honeypot. Le composant `Comments.astro` est partagé par les
+  articles et `/livre-d-or/` ; tant que `COMMENTS_API` / `TURNSTILE_SITE_KEY` ne sont pas
+  configurées, le site affiche un placeholder « commentaires en cours d'activation » sans
+  formulaire, script Turnstile ni requête.
 - **Compteur GoatCounter** réel (sans cookie) : comptage sur toutes les pages publiques,
   affichage sur l'accueil, avec repli honnête « activation en cours » tant que le site
   GoatCounter n'est pas configuré.
@@ -32,8 +35,9 @@ sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN)
 - **Thème rétro accessible** : polices 100 % système, motifs CSS, cadres biseautés, bannière
   dégradée, marquee CSS **avec contrôle de pause** (WCAG 2.2.2), `prefers-reduced-motion`,
   contrastes AA vérifiés, skip-link, focus visible, `lang` correct sur les passages anglais.
-- **JavaScript minimal et documenté** : script GoatCounter, scripts inline de la galerie
-  et du compteur ; le contenu reste consultable sans JS (voir « Scripts et requêtes externes »).
+- **JavaScript minimal et documenté** : script GoatCounter, scripts inline de la galerie, du
+  compteur et des commentaires (uniquement si l'API est configurée) ; le contenu reste consultable
+  sans JS (voir « Scripts et requêtes externes »).
 - **Base-aware** : mêmes liens et assets à la racine (`/`) ou sous un sous-dossier (`/mon-repo`),
   pour GitHub Pages page utilisateur ou page de projet.
 - **CI/CD GitHub Pages** : build et déploiement par GitHub Actions (`.github/workflows/deploy.yml`).
@@ -43,6 +47,7 @@ sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN)
 | Composant | Version (épinglée) | Rôle |
 | --- | --- | --- |
 | [Astro](https://astro.build) | **7.4.13** | Générateur de site statique |
+| [Cloudflare Workers](https://workers.cloudflare.com) + [D1](https://developers.cloudflare.com/d1/) + [Turnstile](https://developers.cloudflare.com/turnstile/) | services managés (code du Worker dans `worker/`) | Stockage et publication des commentaires anonymes, anti-spam |
 | [Decap CMS](https://decapcms.org) (`decap-cms-app`) | **3.18.0** | Interface d'administration auto-hébergée |
 | React / React DOM (peer de Decap) | **19.3.1** | Dépendances de l'interface admin |
 | `@astrojs/markdown-remark` | **7.3.10** | Pipeline Markdown unified (réécriture base-aware des médias/liens) |
@@ -51,8 +56,8 @@ sur GitHub Pages, et une administration auto-hébergée en `/admin/` (aucun CDN)
 | npm | **≥ 9.6.5** (développé avec 11.19.1) | Gestionnaire de paquets |
 
 Aucune autre dépendance que celles listées : pas de police distante, pas de framework côté public.
-Le JavaScript public se limite au service documenté (GoatCounter) et à quelques scripts
-inline ; la page admin charge Decap, bundlé localement.
+Le JavaScript public se limite aux services documentés (GoatCounter, Turnstile/Worker) et à
+quelques scripts inline ; la page admin charge Decap, bundlé localement.
 
 ## Démarrage rapide
 
@@ -98,6 +103,8 @@ docs/
 .github/
 └── workflows/
     └── deploy.yml             # CI : build Astro + publication GitHub Pages
+worker/
+└── README.md                  # Worker Cloudflare des commentaires (D1 + Turnstile), hors build Astro
 public/
 ├── .nojekyll                  # Fichier vide conservé pour compatibilité (publication depuis une branche)
 ├── favicon.svg                # Favicon rétro local (SVG)
@@ -106,11 +113,11 @@ public/
 └── images/
     └── uploads/               # Médias déposés via le CMS (public_folder /images/uploads)
 src/
-├── components/                # Composants présentationnels + placeholder de commentaires
+├── components/                # Composants présentationnels + commentaires
 │   ├── ArticleNav.astro       # Navigation précédent/suivant
 │   ├── Badges.astro           # Badges rétro + « under construction » SVG
 │   ├── Banner.astro           # Bannière dégradée (titre non h1)
-│   ├── Comments.astro         # Placeholder de commentaires (fermés)
+│   ├── Comments.astro         # Commentaires anonymes : placeholder sans config, formulaire + Turnstile sinon
 │   ├── Footer.astro           # Pied de page (liens confidentialité, galerie…)
 │   ├── Guestbook.astro        # Teaser du livre d'or vers /livre-d-or/
 │   ├── Marquee.astro          # Bandeau défilant CSS + contrôle de pause
@@ -119,7 +126,7 @@ src/
 │   ├── VisitCounter.astro     # Compteur GoatCounter (repli si non configuré)
 │   └── Webring.astro          # Webring (liens externes rel="noopener noreferrer")
 ├── config/
-│   └── site.ts                # Configuration publique : GoatCounter, contact RGPD
+│   └── site.ts                # Configuration publique : GoatCounter, contact RGPD, API commentaires
 ├── content/
 │   ├── config.ts              # Schémas Zod des collections « blog » et « gallery » (legacy)
 │   ├── blog/                  # Articles Markdown (dont test.md)
@@ -130,9 +137,9 @@ src/
 │   ├── index.astro            # Accueil : liste + sidebar (grille 2 colonnes)
 │   ├── 404.astro              # Page introuvable thématisée
 │   ├── admin/index.astro      # Interface d'administration Decap CMS (/admin/)
-│   ├── blog/[slug].astro      # Page d'un article (couverture, prose, commentaires fermés)
+│   ├── blog/[slug].astro      # Page d'un article (couverture, prose, commentaires anonymes)
 │   ├── galerie.astro          # Galerie de GIF (masquage, reduced-motion, état vide)
-│   ├── livre-d-or.astro       # Livre d'or (même composant de commentaires, fermé)
+│   ├── livre-d-or.astro       # Livre d'or (même composant de commentaires, page dédiée)
 │   └── confidentialite.astro  # Politique de confidentialité et droits RGPD
 ├── styles/
 │   └── skyblog.css            # Feuille globale unique du thème (sections commentées)
@@ -210,8 +217,9 @@ Deux terminaux : `npm run dev` et `npm run cms`, puis ouvrir
 local : connexion immédiate sans identifiant ni OAuth, écriture **directe** dans
 `src/content/blog/*.md` (et `src/content/gallery/*.md`), images dans `public/images/uploads/`. Le
 CMS est configuré dans `public/admin/config.yml` (interface `locale: fr`, collections `blog` et
-`gallery` alignées 1:1 sur les schémas Astro). Les commentaires sont momentanément fermés
-(placeholder commun) ; le compteur GoatCounter est un vrai service, configuré plus bas.
+`gallery` alignées 1:1 sur les schémas Astro). Les commentaires anonymes sont servis par le Worker
+Cloudflare (voir la section dédiée) ; le compteur GoatCounter est un vrai service, configuré plus
+bas.
 
 > `decap-server` ne sert **qu'au développement** : il n'a aucune authentification et n'écoute que
 > sur localhost. Ne jamais l'exposer en production.
@@ -231,25 +239,31 @@ CMS est configuré dans `public/admin/config.yml` (interface `locale: fr`, colle
   ≥ 7:1) ; indicateur de focus noir + halo jaune ; skip-link ; `lang="en"` sur les badges et
   mentions anglaises.
 - **CSP des pages publiques** : meta `Content-Security-Policy` dans `BaseLayout.astro`, limitée à
-  l'origine de GoatCounter et aux images `https:` (détail dans la section suivante). La page
-  `/admin/` garde son propre HTML et n'inclut pas cette CSP.
+  GoatCounter, aux images `https:` et, pour les commentaires, à `challenges.cloudflare.com`
+  (Turnstile) et à l'origine du Worker (`COMMENTS_API`, si configurée). La page `/admin/` garde son
+  propre HTML et n'inclut pas cette CSP.
 
 ## Scripts et requêtes externes
 
 Le site n'est plus « zéro JS » ni « zéro requête externe » : c'est un choix assumé (décisions
-D-01 à D-04 de `BACKLOG.md`). Voici la liste exhaustive des scripts et requêtes sortantes.
+D-01 à D-09 de `BACKLOG.md`). Voici la liste exhaustive des scripts et requêtes sortantes.
 
 | Origine | Chargée sur | Rôle | Repli sans JS / sans réseau |
 | --- | --- | --- | --- |
 | `https://gc.zgo.at`, `https://*.goatcounter.com` | toutes les pages publiques (script) ; widget sur l'accueil | mesure d'audience sans cookie | « — » puis « indisponible » |
+| `https://challenges.cloudflare.com` | pages avec commentaires activés (script + iframe Turnstile) | vérification anti-robots | statut d'erreur explicite, pas de publication |
+| Origine `COMMENTS_API` (Worker Cloudflare) | pages avec commentaires activés (`GET`/`POST /comments`) | lecture et publication des messages (D1) | « Commentaires indisponibles pour le moment. » |
 | Images `https:` externes | `/galerie/`, si `externalUrl` est utilisé | GIF optionnels | lien direct « Ouvrir le GIF » |
 
-- Le script GoatCounter (`count.js`) est le seul script distant ; la CSP l'autorise
-  explicitement, ainsi que `gc.zgo.at` et `*.goatcounter.com` pour le total.
-- Les scripts inline (masquage de la galerie, mise à jour du compteur) sont couverts par
-  `'unsafe-inline'` et documentés directement dans les composants.
-- Aucun cookie de mesure : GoatCounter fonctionne sans cookie. Aucun service de commentaires
-  tiers n'est chargé.
+- Le script GoatCounter (`count.js`) est distant ; la CSP l'autorise explicitement, ainsi que
+  `gc.zgo.at` et `*.goatcounter.com` pour le total.
+- Turnstile (`https://challenges.cloudflare.com/turnstile/v0/api.js`) et le Worker ne sont chargés
+  que si `COMMENTS_API` et `TURNSTILE_SITE_KEY` sont définies. Sans elles, aucun formulaire, aucun
+  script Turnstile et aucune requête de commentaire ne sont émis.
+- Les scripts inline (masquage de la galerie, mise à jour du compteur, commentaires) sont couverts
+  par `'unsafe-inline'` et documentés directement dans les composants.
+- Aucun cookie de mesure : GoatCounter fonctionne sans cookie. Turnstile est un service Cloudflare
+  de vérification anti-robots (voir sa politique dans la page Confidentialité).
 - Le bundle Decap de `/admin/` est servi localement (aucun CDN) ; cette page n'inclut pas la CSP.
 
 ## Configuration du compteur (GoatCounter)
@@ -280,6 +294,83 @@ chiffres. Le code est validé par `^[a-z0-9-]+$` ; en cas d'échec réseau, le l
 « indisponible » sans casser la page. GoatCounter met le total en cache **4 h** : le chiffre n'est
 pas instantané.
 
+## Commentaires anonymes (Cloudflare Worker + D1 + Turnstile)
+
+Les commentaires des articles et du **livre d'or** (`/livre-d-or/`) sont anonymes : **pseudo +
+message**, sans email, sans compte et sans mot de passe. Ils sont **publiés immédiatement** et
+restent publics jusqu'à leur suppression. Il n'y a **pas de modération a priori** ; l'anti-spam
+repose sur Turnstile (interaction-only), un honeypot invisible et une limitation de débit côté
+Worker.
+
+### Architecture
+
+```
+Navigateur ── GET/POST /comments ──► Worker Cloudflare ──► base D1
+     │                                     │
+     └── script + iframe Turnstile ◄───────┘ (vérification anti-robots)
+```
+
+- **Astro** reste 100 % statique. Le composant partagé `src/components/Comments.astro` rend le
+  formulaire, la liste et un petit script inline qui appelle l'API ; il reçoit `page` (chemin de la
+  page, par défaut `Astro.url.pathname`) pour distinguer le fil d'un article de celui du livre
+  d'or.
+- **Worker Cloudflare** : API `GET /comments?page=…` (lecture) et `POST /comments` (publication),
+  avec `page`, `author`, `message`, `turnstileToken` et le honeypot `website`. Le Worker vérifie
+  Turnstile, filtre le spam, calcule un hash d'IP à durée courte et écrit dans **D1**.
+- **D1** stocke les messages (`id`, `author`, `message`, `page`, `created_at`), dans une base créée
+  en **Union européenne** (`eeur`). La suppression se fait côté administration avec
+  `DELETE /comments/:id` et le secret `ADMIN_TOKEN` (procédure dans le README du Worker) ; le site
+  public n'expose aucune route d'administration.
+- **Aucun email ni compte visiteur** n'est demandé. Le pseudo et le message sont visibles par tous ;
+  le hash d'IP sert uniquement à la limitation de débit (24 h maximum, jamais l'IP brute).
+
+### Variables et secrets
+
+| Où | Nom | Rôle |
+| --- | --- | --- |
+| GitHub → Actions → Variables | `COMMENTS_API` | origine HTTPS du Worker, **sans slash final** (ex. `https://comments.exemple.workers.dev`) ; exposée au build en `PUBLIC_COMMENTS_API` |
+| GitHub → Actions → Variables | `TURNSTILE_SITE_KEY` | clé de site **publique** Turnstile ; exposée en `PUBLIC_TURNSTILE_SITE_KEY` |
+| Cloudflare (Worker) | `TURNSTILE_SECRET` | clé **secrète** Turnstile, créée avec `wrangler secret put` ; jamais dans le dépôt ni dans le HTML |
+| Cloudflare (Worker) | `ADMIN_TOKEN` | jeton de suppression administrative (`DELETE /comments/:id`), généré localement ; jamais dans le dépôt |
+| Cloudflare (Worker) | binding D1 | base de données des commentaires, configurée dans `wrangler.toml`/le dashboard |
+| GitHub → Actions → Variables | `D1_DATABASE_ID` | identifiant de la base D1, injecté dans `wrangler.toml` par le workflow Worker (valeur publique, pas un secret) |
+| GitHub → Actions → Secrets | `CLOUDFLARE_API_TOKEN` | token API Cloudflare requis pour déployer le Worker (Workers Scripts:Edit + D1:Edit) |
+| GitHub → Actions → Secrets | `CLOUDFLARE_ACCOUNT_ID` | identifiant du compte Cloudflare, requis pour déployer le Worker |
+
+Les deux variables GitHub côté site sont **publiques** (elles apparaissent dans le HTML) : ce ne
+sont pas des secrets. Si l'une des deux manque, `Comments.astro` affiche « Les commentaires sont en
+cours d'activation… » sans formulaire, sans script Turnstile et sans requête. En local :
+
+```sh
+PUBLIC_COMMENTS_API=https://comments.exemple.workers.dev \
+PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA \
+npm run build
+```
+
+(`1x00000000000000000000AA` est une clé de test publique Turnstile, qui réussit toujours.)
+
+### Mise en service
+
+La procédure détaillée (création de la base D1, schéma, `wrangler.toml`, secrets, routes, CORS et
+déploiement) est maintenue dans **[`worker/README.md`](worker/README.md)**, avec le workflow
+[`deploy-worker.yml`](.github/workflows/deploy-worker.yml) pour appliquer les migrations et déployer
+le Worker. Côté site, il suffit ensuite de définir `COMMENTS_API` et `TURNSTILE_SITE_KEY` dans les
+variables GitHub Actions, puis de redéployer. Le Worker doit autoriser en CORS l'origine publique
+du site (et l'origine locale en développement) et vérifier le secret Turnstile côté serveur.
+
+### Limites assumées
+
+- **Pas de modération a priori** : un message peut être publié avant d'être supprimé. Les filtres
+  (Turnstile, honeypot, limitation de débit) réduisent le spam mais ne le suppriment pas.
+- **Pas de compte** : impossible de modifier ou supprimer son message depuis le site ; la
+  suppression se fait sur demande auprès du webmaster ou via l'administration.
+- **Dépendance externe** : disponibilité, quotas et limites du free tier Cloudflare (Workers, D1,
+  Turnstile) ; le site reste consultable si l'API tombe (statut « Commentaires indisponibles »).
+- **Turnstile** : service tiers chargé uniquement quand les commentaires sont activés ; son bon
+  fonctionnement dépend du réseau et du navigateur.
+- **Données** : les messages sont publics par conception ; ne publiez pas de données sensibles.
+  Voir `/confidentialite/`.
+
 ## Déploiement GitHub Pages
 
 Le déploiement est automatisé par [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) :
@@ -292,7 +383,9 @@ push sur `main` (ou lancement manuel), build puis publication de l'artefact `dis
 3. (Optionnel) **Settings → Secrets and variables → Actions → Variables** :
    - `SITE_URL` — URL publique du site (utile pour un domaine personnalisé) ;
    - `BASE_PATH` — chemin de base si vous voulez forcer une valeur ;
-   - `GOATCOUNTER_CODE` — code public du site GoatCounter (active le compteur réel).
+   - `GOATCOUNTER_CODE` — code public du site GoatCounter (active le compteur réel) ;
+   - `COMMENTS_API` — origine du Worker Cloudflare des commentaires (active le formulaire) ;
+   - `TURNSTILE_SITE_KEY` — clé de site publique Turnstile (active l'anti-spam).
 
 **URL et `base` automatiques** (sans variable) :
 
@@ -340,14 +433,20 @@ Le backend GitHub de Decap ne peut pas s'authentifier depuis un site statique : 
 ## Sécurité
 
 - **Aucun secret dans le dépôt** : le client OAuth (et son secret) vit uniquement dans les
-  variables du worker OAuth, côté infrastructure ; `/admin` reste en `noindex` (ce n'est pas une
+  variables du worker OAuth, côté infrastructure ; la clé secrète Turnstile des commentaires vit
+  uniquement dans les secrets du Worker Cloudflare. `/admin` reste en `noindex` (ce n'est pas une
   mesure de sécurité, l'authentification GitHub est la barrière).
 - **Édition = droit d'écriture GitHub** : le worker OAuth délivre un jeton à tout compte GitHub
   qui autorise l'app, mais Decap ne peut lire/écrire le contenu que si ce compte a un **accès push
   au dépôt**. Aucune liste d'utilisateurs n'est gérée côté worker ; la barrière est celle des
   permissions GitHub du dépôt.
 - **CSP** : les pages publiques déclarent une `Content-Security-Policy` restrictive (GoatCounter,
-  images `https:`/`data:` uniquement, aucun iframe) ; `/admin/` n'est pas concerné.
+  Turnstile via `challenges.cloudflare.com`, images `https:`/`data:` uniquement, origine du Worker
+  de commentaires en `connect-src` si configurée) ; `/admin/` n'est pas concerné.
+- **Commentaires** : validation côté client **et** côté Worker, Turnstile vérifié côté serveur,
+  honeypot, limitation de débit par hash d'IP, insertion DOM par `textContent` (pas d'`innerHTML`
+  pour les données visiteur), aucun email ni compte. Les messages sont publics : ne pas y publier
+  de données sensibles.
 - **`local_backend` strictement localhost** : `decap-server` n'a pas d'authentification.
 - **Dépendances** : versions épinglées et installation reproductible (`npm ci` +
   `package-lock.json`).
@@ -383,8 +482,11 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
   internes fonctionnent à la racine comme sous `/mon-skyblog`. Limite résiduelle : les **aperçus
   d'images dans l'interface du CMS** restent absolus et peuvent ne pas s'afficher sous une base de
   projet — le contenu publié, lui, est correct.
-- **Commentaires** : temporairement fermés, solution anonyme à choisir. Les pages concernées
-  affichent un placeholder ; aucun script, iframe ou formulaire de commentaire n'est actif.
+- **Commentaires** : anonymes (pseudo + message) et publiés immédiatement, sans modération a
+  priori. La suppression est manuelle (administration/D1 ou demande au webmaster). Le service
+  dépend de Cloudflare (Worker, D1, Turnstile) ; si l'API est indisponible, un message d'erreur
+  s'affiche mais la page reste consultable. Le formulaire n'apparaît que si `COMMENTS_API` et
+  `TURNSTILE_SITE_KEY` sont définies.
 - **Compteur** : total GoatCounter mis en cache **4 h** (pas d'instantané). Le script de comptage
   est chargé sur toutes les pages publiques (total site-wide) ; seul le widget de l'accueil affiche
   le chiffre.
@@ -418,7 +520,13 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
       (Settings → Secrets and variables → Actions → Variables) ;
 - [ ] **Créer l'adresse email de contact RGPD** et la renseigner dans `src/config/site.ts`
       (`contactEmail`), puis redéployer ;
-- [ ] Tester en navigateur : `/livre-d-or/` (placeholder), compteur, `/galerie/`
+- [ ] **Déployer le Worker de commentaires** : créer la base D1 en UE et le widget Turnstile,
+      définir les secrets Cloudflare `TURNSTILE_SECRET` / `ADMIN_TOKEN`, les secrets GitHub
+      `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` et la variable `D1_DATABASE_ID`, puis
+      suivre [`worker/README.md`](worker/README.md) et lancer le workflow manuel
+      `Deploy comments Worker` ; définir enfin `COMMENTS_API` et `TURNSTILE_SITE_KEY` ;
+- [ ] Tester en navigateur : `/livre-d-or/` (formulaire anonyme + Turnstile, ou placeholder si les
+      variables sont absentes), publication et affichage d'un message, compteur, `/galerie/`
       (masquage + `prefers-reduced-motion`), `/confidentialite/`.
 
 **À vérifier côté navigateur** :
@@ -440,6 +548,6 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 Site de démonstration construit avec [Astro](https://astro.build) et
 [Decap CMS](https://decapcms.org) (MIT), polices système uniquement. Les services externes se
-limitent à GoatCounter (compteur sans cookie), plus les éventuels GIF externes de la galerie.
-Les commentaires sont momentanément fermés, sans service tiers. Contenu rédactionnel fictif à but
+limitent à GoatCounter (compteur sans cookie), au Worker Cloudflare + D1 + Turnstile (commentaires
+anonymes) et aux éventuels GIF externes de la galerie. Contenu rédactionnel fictif à but
 pédagogique ; pas de licence explicite ajoutée à ce stade.
