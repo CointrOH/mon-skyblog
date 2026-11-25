@@ -77,7 +77,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | Implémentation P1/P2/P3/P4 (images, galerie, Giscus, GoatCounter, confidentialité). |
 | 25/11/2026 | Revue PO : build 10 pages OK ; couverture `/blog/test/` et image inline vérifiées sous `/mon-skyblog` ; carte de galerie temporaire testée puis retirée ; compteur corrigé en script global ; thème Giscus rétro branché. |
 | 25/11/2026 | Commit `709e7a9`, push sur `main`, déploiement GitHub Pages **réussi** ; pages `/livre-d-or/`, `/galerie/`, `/confidentialite/` et `/giscus-theme.css` en ligne. |
-| 25/11/2026 | **Giscus retiré** : le propriétaire refuse le compte GitHub obligatoire. Commentaires momentanément fermés ; aucune solution de remplacement codée sans accord (D-09). |
+| 25/11/2026 | **Giscus retiré** : le propriétaire refuse le compte GitHub obligatoire. Commentaires momentanément fermés ; aucune solution de remplacement codée sans accord (D-09). Discussions GitHub désactivées (aucune discussion créée). |
 
 ## 6. Règles de travail
 
