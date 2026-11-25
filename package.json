@@ -7,9 +7,16 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
-    "start": "ASTRO_TELEMETRY_DISABLED=1 astro dev"
+    "start": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "cms": "decap-server"
   },
   "dependencies": {
-    "astro": "7.4.13"
+    "astro": "7.4.13",
+    "decap-cms-app": "3.18.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "decap-server": "3.11.6"
   }
 }
