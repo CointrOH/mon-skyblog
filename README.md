@@ -1,5 +1,7 @@
 # Mon Skyblog
 
+**En ligne : [https://cointroh.github.io/mon-skyblog/](https://cointroh.github.io/mon-skyblog/)** · **Dépôt : [CointrOH/mon-skyblog](https://github.com/CointrOH/mon-skyblog)**
+
 Journal rétro « Skyblog 1990-2000 » construit avec **Astro** et éditable via **Decap CMS**.
 Trois articles de démonstration, un thème accessible et volontairement daté (bannière, marquee,
 compteur factice, livre d'or, webring), un rendu statique déployable sur GitHub Pages, et une
@@ -215,28 +217,36 @@ domain** (laisser `BASE_PATH` vide ou `/`).
 
 ## OAuth pour la production (Decap CMS)
 
-Le backend GitHub de Decap ne peut pas s'authentifier depuis un site statique : il faut un petit
-**service OAuth externe** (worker Cloudflare type `sveltia-cms-auth`, ou service hébergé Decap
-Turbo). Procédure complète, sécurité et tests : **[`docs/decap-oauth.md`](docs/decap-oauth.md)**.
+Le backend GitHub de Decap ne peut pas s'authentifier depuis un site statique : un petit
+**service OAuth externe** est utilisé (worker Cloudflare `sveltia-cms-auth` + GitHub App
+`Mon Skyblog Admin`). Procédure de référence, sécurité et tests :
+**[`docs/decap-oauth.md`](docs/decap-oauth.md)**.
 
-Trois valeurs sont à fournir (documentées dans la procédure) :
+**Configuration en production (25/11/2026)** :
 
-- `backend.repo` — le dépôt GitHub réel (`<owner>/<repo>`) ;
-- `backend.base_url` — l'**origine** du service OAuth (ex.
-  `https://sveltia-cms-auth.<compte>.workers.dev`, sans chemin ni slash final) ;
-- `backend.auth_scope` (optionnel) — `public_repo` si le dépôt est public (OAuth App uniquement,
-  sans effet avec une GitHub App).
+- `backend.repo` : `CointrOH/mon-skyblog` ;
+- `backend.base_url` : `https://sveltia-cms-auth.sebastien-zambernardi.workers.dev`
+  (origine seule, sans slash final) ;
+- GitHub App installée **uniquement sur ce dépôt** (Contents = Read and write, Metadata =
+  Read-only) ;
+- `ALLOWED_DOMAINS` du worker : `cointroh.github.io` ;
+- le **client secret** vit uniquement dans les variables Cloudflare : aucun secret dans le dépôt.
 
-> **Rien n'est configuré ni déployé dans ce dépôt** : `repo` et `base_url` sont des placeholders.
-> Aucun secret, client ID, ni service OAuth n'y figure. La mise en production doit être réalisée
-> par le propriétaire du dépôt (comptes GitHub/Cloudflare). Le mode local, lui, ne dépend pas
-> d'OAuth.
+> **Qui peut éditer ?** N'importe quel compte GitHub peut *autoriser* l'application OAuth, mais
+> Decap CMS exige un **droit d'écriture (push) sur le dépôt** pour lire ou écrire le contenu :
+> seuls le propriétaire et les éventuels collaborateurs ayant ce droit peuvent réellement éditer.
+> Il n'existe pas de liste d'utilisateurs côté worker : la barrière est celle des permissions
+> GitHub du dépôt. Vérifier régulièrement **Settings → Collaborators** du dépôt.
 
 ## Sécurité
 
 - **Aucun secret dans le dépôt** : le client OAuth (et son secret) vit uniquement dans les
   variables du worker OAuth, côté infrastructure ; `/admin` reste en `noindex` (ce n'est pas une
   mesure de sécurité, l'authentification GitHub est la barrière).
+- **Édition = droit d'écriture GitHub** : le worker OAuth délivre un jeton à tout compte GitHub
+  qui autorise l'app, mais Decap ne peut lire/écrire le contenu que si ce compte a un **accès push
+  au dépôt**. Aucune liste d'utilisateurs n'est gérée côté worker ; la barrière est celle des
+  permissions GitHub du dépôt.
 - **`local_backend` strictement localhost** : `decap-server` n'a pas d'authentification.
 - **Dépendances** : versions épinglées et installation reproductible (`npm ci` +
   `package-lock.json`).
@@ -284,18 +294,20 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 ## Checklist de mise en ligne
 
-- [ ] Créer le dépôt GitHub et pousser `main` ;
-- [ ] **Settings → Pages → Source = GitHub Actions** ;
-- [ ] (Facultatif) variables `SITE_URL` / `BASE_PATH` ; domaine personnalisé si besoin ;
-- [ ] Vérifier le premier déploiement du workflow (Actions) et l'URL publiée ;
-- [ ] Vérifier `/`, un article, `/404`, `/admin/` (page statique) et le favicon ;
-- [ ] Réaliser l'OAuth de production : voir `docs/decap-oauth.md` (worker + secrets + `repo` +
-      `base_url`), puis tester connexion/écriture/commit/déploiement ;
-- [ ] Relire l'audit npm (état connu ci-dessus) et les secrets (aucun commit ne doit contenir de
-      jeton) ;
-- [ ] Faire la recette de validation visuelle manuelle (docs/PLAN.md) ;
-- [ ] Mettre à jour les placeholders `owner/repo` et `base_url` — **uniquement** le jour de la
-      mise en production.
+**Déjà fait (25/11/2026)** :
+
+- [x] Dépôt GitHub `CointrOH/mon-skyblog` et branche `main` poussés ;
+- [x] **Settings → Pages → Source = GitHub Actions** (déploiement automatique) ;
+- [x] OAuth de production configuré (worker Cloudflare + GitHub App + `base_url`) et connexion
+      `/admin/` testée ;
+- [x] `repo` et `base_url` renseignés dans `public/admin/config.yml` (aucun secret dans le dépôt).
+
+**À vérifier côté navigateur** :
+
+- [ ] Recette de validation visuelle manuelle ([docs/PLAN.md](docs/PLAN.md) §8) : responsive,
+      reduced-motion, pause du marquee au clavier, focus, webring ;
+- [ ] Vérification rapide en ligne : `/`, un article, `/404`, `/admin/`, favicon ;
+- [ ] Relire l'audit npm (état connu ci-dessus) et vérifier qu'aucun commit ne contient de jeton.
 
 ## Documentation
 

@@ -77,6 +77,7 @@ publiques.
 | T4 | `de3be67`, `4a85f78` | Thème rétro accessible (CSS global + 10 composants + 2 articles) ; correctifs accessibilité (pause marquee WCAG 2.2.2, `lang` 3.1.2) |
 | T5 | `a1ac3b2` | Documentation OAuth de production (`docs/decap-oauth.md`), README, placeholders clarifiés |
 | T6 | `a486e9d` + commit de corrections de la revue finale | QA finale, README de livraison, `docs/PLAN.md`, corrections de la doc OAuth |
+| Production | `1ca0356`, `f6c85ab`, `346c570`, `9ae6ce8` | Dépôt réel, médias base-aware, renommage CointrOH, activation OAuth de production, docs |
 
 ## 5. Revues et rejets
 
@@ -118,6 +119,13 @@ rejet, avec explication de la cause puis correction (pas d'improvisation) :
   `/admin` en `noindex`, `local_backend` limité à localhost.
 - **Contenu** : 3 articles de démonstration datés 2005, triés par date décroissante ; schéma strict
   (7 champs frontmatter + corps Markdown) aligné 1:1 sur les champs Decap.
+- **Déploiement** : site en ligne **https://cointroh.github.io/mon-skyblog/** (GitHub Pages,
+  source GitHub Actions), dépôt `CointrOH/mon-skyblog` ; chaque push sur `main` redéploie.
+- **OAuth de production** : worker Cloudflare `sveltia-cms-auth` + GitHub App
+  `Mon Skyblog Admin` installée uniquement sur ce dépôt ; `repo` et `base_url` renseignés dans
+  `public/admin/config.yml` ; connexion et publication testées le 25/11/2026 ; aucun secret dans
+  le dépôt. L'édition reste réservée aux comptes GitHub ayant un accès push au dépôt (pas de liste
+  d'utilisateurs dans le worker).
 - **Audit npm** (état au 25/11/2026, versions épinglées conservées) : `--omit=dev` → **7 `high`**
   (chaîne transitive Decap, `trim` ReDoS via `remark-parse`/`remark-rehype`, pas de correctif
   amont, impact limité à l'éditeur admin authentifié) ; audit complet → **11 `high`** (ajout de la
@@ -128,9 +136,9 @@ rejet, avec explication de la cause puis correction (pas d'improvisation) :
 
 | Sujet | Risque / action | Priorité |
 | --- | --- | --- |
-| **Infra OAuth réelle** | Aucun worker, OAuth App/GitHub App, ni secret n'existe : création et configuration à faire par le propriétaire en suivant `docs/decap-oauth.md` ; valider la connexion (compatibilité worker à confirmer lors du test) | **Bloquant pour la production** |
-| **Identité du dépôt et du site** | Remplacer `repo: owner/repo` et `base_url` (placeholders) ; définir le domaine (`SITE_URL`) et la source Pages (GitHub Actions) | **Avant mise en ligne** |
-| **Validation navigateur** | Aucun navigateur exploitable dans l'environnement de build : recette visuelle manuelle (voir §8) — responsive 320–375 px / 800×600 / desktop, reduced-motion, pause du marquee au clavier, focus, webring | Avant validation finale |
+| **Infra OAuth** | Configurée et testée le 25/11/2026 (worker Cloudflare + GitHub App + `base_url`). Maintenance à prévoir : mises à jour du worker, rotation du client secret, vérification de l'installation de l'app sur le seul dépôt | Suivi régulier |
+| **Identité du dépôt et du site** | Fait : dépôt `CointrOH/mon-skyblog`, `repo`/`base_url` renseignés, Page source GitHub Actions, URL `https://cointroh.github.io/mon-skyblog/` | Fait |
+| **Validation navigateur** | Rendu et connexion admin validés par le propriétaire (25/11/2026) ; conserver la recette §8 pour les évolutions — responsive 320–375 px / 800×600 / desktop, reduced-motion, pause du marquee au clavier, focus, webring | Suivi des évolutions |
 | **Audit npm** | 7 (prod) / 11 (total) alertes `high` transitives, sans correctif amont dans les versions épinglées ; réévaluer à chaque montée de version de Decap, ne pas forcer de changement majeur | Suivi régulier |
 | **Médias et base de projet** | Réglé pour les pages publiées (réécriture base-aware au rendu via `rehype-base-images.mjs`) ; seuls les aperçus d'images dans l'interface admin restent absolus et peuvent ne pas s'afficher sous une base de projet | Suivi mineur |
 | **Page article et `cover`** | Le `cover` du frontmatter est géré par les cartes d'accueil mais pas affiché en tête d'article (non bloquant) | Confort / évolution |

@@ -4,11 +4,15 @@ Ce document décrit **comment rendre l'administration Decap CMS opérationnelle 
 (dépôt GitHub privé ou public, publication sur GitHub Pages), sans jamais exposer de secret dans
 le dépôt ni dans la page statique.
 
-> **État actuel du dépôt : rien n'est configuré ni déployé.** La configuration
-> `public/admin/config.yml` contient uniquement des **placeholders**. La mise en place décrite
-> ci-dessous doit être réalisée **par le propriétaire du dépôt** (accès à GitHub et à un compte
-> Cloudflare). Le mode local (`npm run dev` + `npm run cms`) fonctionne déjà sans OAuth et ne
-> dépend pas de ce document.
+> **État actuel (25/11/2026) : OAuth configuré et testé en production.** Le site
+> https://cointroh.github.io/mon-skyblog/ utilise un worker Cloudflare `sveltia-cms-auth`
+> (`https://sveltia-cms-auth.sebastien-zambernardi.workers.dev`), une GitHub App
+> `Mon Skyblog Admin` installée uniquement sur `CointrOH/mon-skyblog`, et
+> `base_url` renseignée dans `public/admin/config.yml`. Aucun secret n'est stocké dans le dépôt :
+> le client secret reste dans les variables Cloudflare. La procédure ci-dessous documente la mise
+> en place initiale, la maintenance et la remise en état (nouveau worker, rotation de secret,
+> changement de dépôt/domaine). Le mode local (`npm run dev` + `npm run cms`) reste indépendant
+> de l'OAuth.
 
 Sources officielles consultées : voir la section [Références](#références) en fin de document.
 
@@ -302,6 +306,11 @@ Pour un petit site, l'option A (worker dédié) reste généralement plus simple
       pas de wildcard trop large, pas de `localhost` en production.
 - [ ] **Seuls les collaborateurs avec push access** peuvent éditer (exigence du backend GitHub) ;
       retirer les accès des anciens collaborateurs.
+- [ ] **Authentification ≠ autorisation** : n'importe quel compte GitHub peut *autoriser* l'app
+      OAuth (il n'y a pas de liste d'utilisateurs dans le worker), mais Decap CMS ne peut lire ou
+      écrire qu'avec un compte ayant un **accès push au dépôt**. La restriction repose donc sur les
+      permissions GitHub du dépôt : vérifier régulièrement les collaborateurs et l'installation de
+      l'app (uniquement sur le dépôt du site).
 - [ ] **HTTPS partout** : site, worker, callbacks. Aucun callback `http://`.
 - [ ] **Rotation des secrets** : en cas de fuite ou périodiquement, régénérer le client secret
       côté GitHub, mettre à jour le secret du worker, redéployer. Révoquer les autorisations

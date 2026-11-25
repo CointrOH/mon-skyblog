@@ -6,8 +6,7 @@
 
 backend:
   name: github
-  # PLACEHOLDER n°1 : remplacer "owner/repo" par le dépôt GitHub réel du site
-  # (ex. "cointroh/mon-skyblog"). Voir docs/decap-oauth.md.
+  # Dépôt GitHub de production et branche d'écriture (voir docs/decap-oauth.md).
   repo: CointrOH/mon-skyblog
   branch: main
   # Service OAuth de production (worker Cloudflare sveltia-cms-auth), configuré
@@ -16,8 +15,6 @@ backend:
   base_url: https://sveltia-cms-auth.sebastien-zambernardi.workers.dev
   auth_endpoint: auth
   # auth_scope n'a pas d'effet avec une GitHub App (permissions de l'app).
-  # Optionnel n°3 : si le dépôt est public, limiter le scope demandé à GitHub.
-  # auth_scope: public_repo
 
 # Écriture locale sans OAuth : decap-server (port 8081) proxifie les appels.
 local_backend: true
