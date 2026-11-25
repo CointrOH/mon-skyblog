@@ -82,7 +82,7 @@ docs/
 └── workflows/
     └── deploy.yml             # CI : build Astro + publication GitHub Pages
 public/
-├── .nojekyll                  # Désactive Jekyll sur GitHub Pages (préserve _astro/)
+├── .nojekyll                  # Fichier vide conservé pour compatibilité (publication depuis une branche)
 ├── favicon.svg                # Favicon rétro local (SVG)
 ├── admin/
 │   └── config.yml             # Configuration Decap CMS (backend, collection blog)
@@ -198,9 +198,11 @@ push sur `main` (ou lancement manuel), build puis publication de l'artefact `dis
 - `SITE_URL` par défaut : `https://<owner>.github.io`.
 
 Le workflow calcule ces valeurs (sorties d'étape garanties) et les transmet à Astro ; le même
-build fonctionne à la racine ou sous un sous-dossier. `public/.nojekyll` est copié dans `dist/`
-pour préserver le dossier `_astro/` (fichiers commençant par `_`). Pour reproduire un build de
-page de projet en local :
+build fonctionne à la racine ou sous un sous-dossier. Le fichier `public/.nojekyll` (vide) est
+copié dans `dist/` : il est **conservé pour compatibilité** au cas où le site serait un jour
+publié depuis une branche (Jekyll y ignore les dossiers commençant par `_`), mais il est **inutile
+au flux GitHub Actions actuel**, qui publie directement l'artefact Pages sans passer par Jekyll.
+Pour reproduire un build de page de projet en local :
 
 ```sh
 SITE_URL=https://<owner>.github.io BASE_PATH=/mon-repo npm run build
@@ -266,11 +268,11 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 - **Médias sous une base de projet** : `public_folder: /images/uploads` (Decap) écrit des chemins
   absolus ; sous une base de projet GitHub Pages (`/mon-repo`), les images référencées dans le
   Markdown ne sont pas préfixées. Options : domaine personnalisé / page utilisateur (base `/`), ou
-  adaptation des chemins (suivi T6/T7).
+  adaptation des chemins (évolution future possible).
 - **Éléments de démonstration** : compteur de visites fictif, livre d'or et commentaires fictifs —
   tous explicitement étiquetés ; aucun formulaire n'est connecté, aucune donnée n'est collectée.
 - **Page article** : le `cover` du frontmatter est géré par les cartes d'accueil mais pas encore
-  affiché en tête d'article (non bloquant, suivi T6).
+  affiché en tête d'article (limitation connue, non bloquante).
 - **Pas de prévisualisation serveur** : le CMS est une interface statique ; la prévisualisation
   éventuelle est côté site.
 - **Validation visuelle** : l'environnement de build n'a pas de navigateur exploitable ; les
@@ -283,7 +285,7 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 - [ ] **Settings → Pages → Source = GitHub Actions** ;
 - [ ] (Facultatif) variables `SITE_URL` / `BASE_PATH` ; domaine personnalisé si besoin ;
 - [ ] Vérifier le premier déploiement du workflow (Actions) et l'URL publiée ;
-- [ ] Vérifier `/`, un article, `/404`, `/admin/` (page statique), le favicon, `.nojekyll` ;
+- [ ] Vérifier `/`, un article, `/404`, `/admin/` (page statique) et le favicon ;
 - [ ] Réaliser l'OAuth de production : voir `docs/decap-oauth.md` (worker + secrets + `repo` +
       `base_url`), puis tester connexion/écriture/commit/déploiement ;
 - [ ] Relire l'audit npm (état connu ci-dessus) et les secrets (aucun commit ne doit contenir de

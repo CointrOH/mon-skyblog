@@ -206,7 +206,7 @@ Points d'attention :
 - `auth_endpoint` doit correspondre au chemin exposé par le worker (`auth` par défaut). Le chemin
   complet appelé est `<base_url>/<auth_endpoint>` ;
 - `branch: main` doit être la branche où Decap écrit ; c'est aussi la branche qui déclenche le
-  workflow de déploiement (T3) ;
+  workflow de déploiement (voir le README, section « Déploiement GitHub Pages ») ;
 - `local_backend: true` reste présent : en local, Decap détecte `decap-server` sur
   `localhost:8081` et bascule sur le backend proxy, **sans OAuth ni `base_url`**. Ne pas retirer
   cette ligne sous prétexte de production : elle est ignorée hors localhost ;
@@ -352,7 +352,7 @@ Après avoir renseigné `repo` et `base_url` (et déployé le worker) :
 | `redirect_uri_mismatch` (GitHub) | URL de callback différente de `<worker>/callback` | Corriger la callback URL côté GitHub (chemin exact, HTTPS, même domaine) |
 | Popup de login bloquée / ne revient pas | Popup bloquée, `base_url` avec chemin ou slash final, mauvais `auth_endpoint` | Autoriser les popups ; `base_url` = origine seule ; `auth_endpoint: auth` |
 | Le worker refuse la demande (CORS/origine) | `ALLOWED_DOMAINS` vide ou ne correspond pas à l'hôte du site | Renseigner l'hôte exact, sans port ni chemin |
-| Erreur 404 sur `/admin/config.yml` | Fichier absent du build, ou base path incorrect | Vérifier `public/admin/config.yml` et le build avec `BASE_PATH` (T3) |
+| Erreur 404 sur `/admin/config.yml` | Fichier absent du build, ou base path incorrect | Vérifier `public/admin/config.yml` et le build base-aware (voir README, section « Déploiement GitHub Pages ») |
 | 403 / « not a collaborator » | Compte GitHub sans accès en push au dépôt | Ajouter le compte comme collaborateur (ou accès équipe) |
 | 401 « bad credentials » après rotation | Ancien client secret encore configuré dans le worker | Mettre à jour `GITHUB_CLIENT_SECRET` puis redéployer le worker |
 | « Not Found » / dépôt introuvable | `repo` erroné, mauvaise branche, app non installée | Corriger `owner/repo`, `branch`, installer l'app sur le dépôt |
@@ -368,7 +368,8 @@ Après avoir renseigné `repo` et `base_url` (et déployé le worker) :
   ces chemins ne sont pas préfixés par la base et les images peuvent être cassées. Options :
   publier sur un **domaine personnalisé** ou une **page utilisateur** (`<owner>.github.io`, base `/`),
   ou adapter le `public_folder` et préfixer les chemins d'images (à traiter finement : le rendu
-  Astro n'ajoute pas automatiquement la base aux images Markdown). Ce point est suivi en T6.
+  Astro n'ajoute pas automatiquement la base aux images Markdown). Ce point relève d'une évolution
+  future possible.
 - **Pas de prévisualisation serveur** : Decap CMS est une interface statique ; la prévisualisation
   intégrée est côté client/site, il n'y a pas de rendu serveur du Markdown.
 - **Dépendance d'infrastructure** : le worker OAuth doit être maintenu (mises à jour de sécurité,

@@ -71,7 +71,7 @@ publiques.
 | T3 | `06eb7b0`, `8325587` | Workflow GitHub Pages, `SITE_URL`/`BASE_PATH`, liens base-aware, `.nojekyll` ; correctif de robustesse du workflow (step outputs, `env`, permissions au niveau job) |
 | T4 | `de3be67`, `4a85f78` | Thème rétro accessible (CSS global + 10 composants + 2 articles) ; correctifs accessibilité (pause marquee WCAG 2.2.2, `lang` 3.1.2) |
 | T5 | `a1ac3b2` | Documentation OAuth de production (`docs/decap-oauth.md`), README, placeholders clarifiés |
-| T6 | commit final de cette tâche | QA finale, README de livraison, `docs/PLAN.md`, corrections de la doc OAuth |
+| T6 | `a486e9d` + commit de corrections de la revue finale | QA finale, README de livraison, `docs/PLAN.md`, corrections de la doc OAuth |
 
 ## 5. Revues et rejets
 
