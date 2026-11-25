@@ -524,10 +524,9 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
       secrets Cloudflare `TURNSTILE_SECRET` / `ADMIN_TOKEN`, secrets GitHub
       `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`, variable `D1_DATABASE_ID`, workflow
       `Deploy comments Worker`, puis `COMMENTS_API` et `TURNSTILE_SITE_KEY` ;
-- [ ] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message,
+- [x] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message,
       limitation de débit, `/livre-d-or/`, `/galerie/` et `/confidentialite/` ;
-- [ ] **Régénérer le token API Cloudflare et le secret Turnstile** exposés dans le chat, puis
-      mettre à jour GitHub/Cloudflare ;
+- [x] **Rotation des secrets exposés** effectuée (token API Cloudflare et secret Turnstile) ;
 - [ ] Tester le compteur GoatCounter après création du site.
 
 **À vérifier côté navigateur** :
