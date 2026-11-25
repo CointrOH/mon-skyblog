@@ -10,13 +10,12 @@ backend:
   # (ex. "cointroh/mon-skyblog"). Voir docs/decap-oauth.md.
   repo: CointrOH/mon-skyblog
   branch: main
-  # PLACEHOLDER n°2 : origine du service OAuth de production (Cloudflare Worker
-  # type sveltia-cms-auth), SANS chemin ni slash final, ex. :
-  # base_url: https://sveltia-cms-auth.<compte>.workers.dev
-  # Sans cette valeur, le backend GitHub ne peut pas s'authentifier en production.
-  # En local, ce champ n'est pas utilisé grâce à `local_backend`.
-  # Procédure complète : docs/decap-oauth.md
+  # Service OAuth de production (worker Cloudflare sveltia-cms-auth), configuré
+  # le 25/11/2026. Origine seule, SANS chemin ni slash final. En local, ce champ
+  # n'est pas utilisé grâce à `local_backend`. Procédure : docs/decap-oauth.md
+  base_url: https://sveltia-cms-auth.sebastien-zambernardi.workers.dev
   auth_endpoint: auth
+  # auth_scope n'a pas d'effet avec une GitHub App (permissions de l'app).
   # Optionnel n°3 : si le dépôt est public, limiter le scope demandé à GitHub.
   # auth_scope: public_repo
 
