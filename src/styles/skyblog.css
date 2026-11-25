@@ -13,10 +13,12 @@
    7. Marquee (CSS, pas de <marquee>)
    8. Accueil : grille et cartes d'articles
    9. Sidebar & widgets (profil, compteur, livre d'or, webring, badges)
-   10. Article : fil d'Ariane, en-tête, prose, commentaires, prev/next
-   11. Footer
-   12. Responsive
-   13. prefers-reduced-motion
+   10. Article : fil d'Ariane, en-tête, couverture, prose, images, commentaires, prev/next
+   11. Galerie (contrôles, grille de GIF, état vide)
+   12. Page confidentialité
+   13. Footer
+   14. Responsive
+   15. prefers-reduced-motion
    ========================================================================== */
 
 /* 1. Variables ------------------------------------------------------------ */
@@ -268,6 +270,8 @@ main {
   font-weight: bold;
   font-size: 0.95rem;
   text-decoration: none;
+  /* Libellés insécables : à 5 entrées, la nav passe à la ligne entre les liens. */
+  white-space: nowrap;
   border: 2px outset #ffd1e8;
   background: rgba(0, 0, 0, 0.18);
 }
@@ -505,7 +509,7 @@ main {
   color: var(--sk-purple);
 }
 
-/* Compteur de visites factice */
+/* Compteur de visites réel / état en attente */
 .counter {
   display: flex;
   justify-content: center;
@@ -539,6 +543,40 @@ main {
 
 .counter__label strong {
   color: var(--sk-magenta);
+}
+
+/* État « en attente » du compteur réel : même cadre noir, aucun faux chiffre.
+   Les digits restent du gabarit digital mais passent en gris, sans total inventé.
+   Repli `.counter > .counter__digit:only-child` : le composant actuel n'affiche
+   qu'un tiret tant que GoatCounter n'est pas configuré. */
+.counter--pending {
+  background: var(--sk-counter-bg);
+  border: 3px inset #555555;
+}
+
+.counter--pending .counter__digit,
+.counter > .counter__digit:only-child {
+  background: linear-gradient(180deg, #2a2a2a 0%, #111111 100%);
+  border-color: #4d4d4d;
+  color: #c7c7c7;
+}
+
+/* Note d'explication (cache GoatCounter, indisponibilité, activation).
+   `.counter__label + .widget__note` couvre le composant actuel, qui réutilise
+   la note générique du widget au lieu de `.counter__note`. */
+.counter__note,
+.counter__label + .widget__note {
+  margin: 0.35rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.counter__note a,
+.counter__label + .widget__note a {
+  color: var(--sk-link);
 }
 
 /* Livre d'or de démonstration */
@@ -705,6 +743,35 @@ main {
   font-size: 0.85rem;
 }
 
+/* Couverture d'article (facultative) : figure encadrée, image contenue. */
+.article__cover {
+  margin: 0 0 1.2rem;
+  padding: 0.55rem;
+  background: var(--sk-panel-alt);
+  border: 3px ridge var(--sk-border);
+  box-shadow: var(--hard-shadow);
+}
+
+.article__cover__img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 28rem;
+  object-fit: contain;
+  margin-inline: auto;
+  border: 3px inset var(--sk-border);
+  background: #ffffff;
+}
+
+.article__cover figcaption {
+  margin: 0.5rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-style: italic;
+  text-align: center;
+}
+
 /* Prose Markdown */
 .prose {
   font-size: 1.03rem;
@@ -792,6 +859,32 @@ main {
   color: var(--sk-link);
 }
 
+/* Images du corps Markdown : encadrées, centrées, jamais plus larges que la prose. */
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  border: 3px inset var(--sk-border);
+  background: #ffffff;
+}
+
+.prose figure {
+  margin: 1.2rem 0;
+  text-align: center;
+}
+
+.prose figure img {
+  margin: 0 auto 0.45rem;
+}
+
+.prose figcaption {
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 /* Commentaires de démonstration */
 .comments {
   margin-top: 1.6rem;
@@ -806,6 +899,11 @@ main {
   color: var(--sk-magenta);
 }
 
+.comments__intro {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+}
+
 .comments__badge {
   display: inline-block;
   margin-left: 0.35rem;
@@ -816,6 +914,51 @@ main {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   vertical-align: middle;
+}
+
+/* Intégration Giscus : cadre uniquement, l'intérieur de l'iframe est cross-origin.
+   Pas de hauteur fixe : l'iframe doit pouvoir grandir avec le fil de discussion. */
+.comments__embed {
+  margin: 0.8rem 0 0.6rem;
+  min-height: 10rem;
+  padding: 0.5rem;
+  background: var(--sk-panel);
+  border: 3px inset var(--sk-border);
+  overflow: hidden;
+}
+
+.comments__embed iframe,
+.giscus-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 0;
+}
+
+.comments__note {
+  margin: 0.7rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.comments__note a {
+  color: var(--sk-link);
+}
+
+/* Repli sans JavaScript ou sans iframe : information + lien vers le livre d'or. */
+.comments__fallback {
+  margin: 0.8rem 0 0;
+  padding: 0.8rem 0.9rem;
+  background: var(--sk-panel-alt);
+  border: 2px dashed var(--sk-magenta);
+  font-size: 0.92rem;
+}
+
+.comments__fallback a {
+  color: var(--sk-link);
 }
 
 .comments__list {
@@ -895,7 +1038,236 @@ main {
   text-shadow: 4px 4px 0 var(--sk-yellow);
 }
 
-/* 11. Footer -------------------------------------------------------------- */
+/* 11. Galerie ------------------------------------------------------------- */
+/* Aucune animation CSS sur les cartes : la pause des GIF est gérée en JS
+   (bouton .gallery-pause avec aria-pressed) ; le CSS ne fait que l'état visuel. */
+.gallery-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 1rem;
+}
+
+.gallery-pause {
+  padding: 0.4rem 0.9rem;
+  background: var(--sk-yellow);
+  border: 3px outset var(--sk-border);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  color: var(--sk-ink);
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: bold;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.gallery-pause:hover {
+  background: var(--sk-purple);
+  color: #ffffff;
+}
+
+/* aria-pressed="true" = galerie en pause : bouton enfoncé, contraste AA. */
+.gallery-pause[aria-pressed='true'] {
+  background: var(--sk-magenta);
+  border-style: inset;
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.gallery-hint {
+  flex: 1 1 18rem;
+  max-width: 42rem;
+  margin: 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.6rem 0.7rem 0.8rem;
+  background: var(--sk-panel);
+  border: var(--panel-border);
+  box-shadow: var(--hard-shadow);
+}
+
+/* La figure porte aussi la légende (titre, date, description, lien) : c'est
+   l'image elle-même qui garde un cadre carré, pas la figure entière. */
+.gallery-card__media {
+  position: relative;
+  margin: 0;
+}
+
+/* Image encapsulée dans un lien : bloc sans débordement, le focus visible
+   global (outline noir + halo jaune) entoure toute la zone cliquable. */
+.gallery-card__image-link {
+  display: block;
+  max-width: 100%;
+  text-decoration: none;
+}
+
+.gallery-card__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  /* Damier en pur CSS : la transparence des GIF reste lisible, sans image distante. */
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, #e2e2e2 25%, transparent 25%, transparent 75%, #e2e2e2 75%),
+    linear-gradient(45deg, #e2e2e2 25%, transparent 25%, transparent 75%, #e2e2e2 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    8px 8px;
+  border: 3px inset var(--sk-border);
+}
+
+.gallery-card__media figcaption {
+  margin-top: 0.55rem;
+}
+
+/* Étiquette posée dans le coin du damier : elle ne masque pas l'image chargée. */
+.gallery-grid.is-paused .gallery-card__media::after {
+  content: 'GIF masqué';
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 1;
+  padding: 0.05rem 0.4rem;
+  background: var(--sk-ink);
+  border: 2px outset #9e9e9e;
+  color: var(--sk-yellow);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.gallery-card__title {
+  margin: 0 0 0.2rem;
+  color: var(--sk-magenta);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  overflow-wrap: break-word;
+}
+
+.gallery-card__meta {
+  margin: 0 0 0.4rem;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.gallery-card__desc {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* Lien ou bouton (Decap peut rendre l'un ou l'autre) : même bouton rétro. */
+.gallery-card__link {
+  display: inline-block;
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  background: var(--sk-panel-alt);
+  border: 3px outset var(--sk-border);
+  color: var(--sk-link);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: bold;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.gallery-card__link:hover {
+  background: var(--sk-magenta);
+  border-color: var(--sk-magenta);
+  color: #ffffff;
+}
+
+.gallery-empty {
+  margin: 0;
+  padding: 1.6rem 1rem;
+  background: var(--sk-panel);
+  border: var(--panel-border);
+  box-shadow: var(--hard-shadow);
+  color: var(--sk-ink-soft);
+  font-style: italic;
+  text-align: center;
+}
+
+/* 12. Page confidentialité ------------------------------------------------ */
+.privacy {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+/* La page /confidentialite/ actuelle n'a pas de classe .privacy : ses sections
+   `.panel` sont directement dans <main>. On espace les panneaux (valable même
+   sans :has) et on borne la largeur de lecture ; :has ne change que cette
+   largeur, le rendu reste correct s'il n'est pas supporté. */
+main > section.panel + section.panel {
+  margin-top: 1.1rem;
+}
+
+main > section.panel > :first-child {
+  margin-top: 0;
+}
+
+main > section.panel > :last-child {
+  margin-bottom: 0;
+}
+
+main:has(> section.panel) {
+  max-width: 46rem;
+}
+
+/* Sections espacées, sans mise en page lourde. */
+.privacy section + section {
+  margin-top: 1.4rem;
+}
+
+.privacy__contact {
+  margin: 1.1rem 0;
+  padding: 0.8rem 0.9rem;
+  background: var(--sk-panel-alt);
+  border: 3px ridge var(--sk-border);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.privacy__contact p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy__meta {
+  margin: 1.2rem 0 0;
+  color: var(--sk-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+/* 13. Footer -------------------------------------------------------------- */
 .site-footer {
   margin-top: 2rem;
   padding: 1.2rem 1rem 1.6rem;
@@ -912,10 +1284,17 @@ main {
 
 .site-footer a {
   color: var(--sk-yellow);
+  /* Libellés du footer insécables ; le retour à la ligne se fait aux séparateurs. */
+  white-space: nowrap;
 }
 
 .site-footer a:hover {
   color: #ffffff;
+}
+
+/* Rangée de liens : un peu d'air entre les lignes quand elle passe sur deux lignes. */
+.site-footer p:last-child {
+  line-height: 2;
 }
 
 .site-footer__small {
@@ -924,7 +1303,18 @@ main {
   font-size: 0.78rem;
 }
 
-/* 12. Responsive ---------------------------------------------------------- */
+/* Rangée de liens du footer : reste lisible et passe proprement à la ligne. */
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  justify-content: center;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 14. Responsive ---------------------------------------------------------- */
 @media (max-width: 900px) {
   .home-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -968,7 +1358,43 @@ main {
   }
 }
 
-/* 13. prefers-reduced-motion ---------------------------------------------- */
+/* Galerie : 2 colonnes de 480 à 899 px, auto-fill au-delà. */
+@media (min-width: 480px) and (max-width: 899px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Une seule colonne sous 480 px : aucun débordement horizontal. */
+@media (max-width: 479px) {
+  .gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 320–380 px : nav à 5 liens et compteur 6 digits sans débordement. */
+@media (max-width: 380px) {
+  .site-nav ul {
+    gap: 0.25rem;
+  }
+
+  .site-nav a {
+    padding: 0.28rem 0.45rem;
+    font-size: 0.8rem;
+  }
+
+  .counter {
+    gap: 2px;
+    padding: 0.35rem;
+  }
+
+  .counter__digit {
+    min-width: 1.3rem;
+    font-size: 1.2rem;
+  }
+}
+
+/* 15. prefers-reduced-motion ---------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

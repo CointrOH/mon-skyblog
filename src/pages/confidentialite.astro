@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { contactEmail } from '../config/site.ts';
+
+const discussionsUrl = 'https://github.com/CointrOH/mon-skyblog/discussions';
+const hasContactEmail = contactEmail.trim().length > 0;
+const cnilUrl = 'https://www.cnil.fr/fr/plaintes';
+const githubPrivacyUrl =
+  'https://docs.github.com/fr/site-policy/privacy-policies/github-privacy-statement';
+const goatcounterPrivacyUrl = 'https://www.goatcounter.com/privacy';
+---
+
+<BaseLayout
+  title="Confidentialité"
+  description="Politique de confidentialité de Mon Skyblog : commentaires GitHub Discussions, compteur GoatCounter sans cookie, droits RGPD."
+>
+  <h1>Confidentialité</h1>
+
+  <p class="home-intro">
+    Ce site est un journal rétro artisanal. Voici, sans jargon inutile, quelles données il traite,
+    pourquoi, chez qui et combien de temps.
+  </p>
+
+  <section class="panel" aria-labelledby="responsable-titre">
+    <h2 id="responsable-titre">Qui est responsable ?</h2>
+    <p>
+      Le responsable du traitement est <strong>Le Webmaster de Mon Skyblog</strong>, éditeur de ce
+      site personnel.
+    </p>
+    <p>
+      {
+        hasContactEmail ? (
+          <>
+            Contact : <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+          </>
+        ) : (
+          <>
+            L'adresse de contact dédiée est en cours de création. En attendant, vous pouvez passer
+            par les <a href={discussionsUrl}>Discussions GitHub du dépôt</a> et y demander un canal
+            privé, <strong>sans publier de données personnelles</strong> dans un message public.
+          </>
+        )
+      }
+    </p>
+  </section>
+
+  <section class="panel" aria-labelledby="donnees-titre">
+    <h2 id="donnees-titre">Quelles données sont traitées ?</h2>
+    <ul>
+      <li>
+        <strong>Commentaires et livre d'or</strong> (via GitHub Discussions) : votre compte GitHub,
+        votre profil public (pseudo, avatar), le contenu de votre message et sa date de publication.
+      </li>
+      <li>
+        <strong>Mesure d'audience</strong> (GoatCounter) : pages vues, totaux et référents agrégés.
+        Les collectes optionnelles de GoatCounter (navigateur, taille d'écran, localisation) sont
+        désactivées dans la configuration du site. Le site n'utilise pas de cookie et GoatCounter
+        ne stocke pas votre adresse IP pour ce compteur.
+      </li>
+      <li>
+        <strong>Journaux d'hébergement</strong> : GitHub Pages, l'hébergeur du site, peut conserver
+        des journaux techniques (adresse IP, requête, date) pour la sécurité et le fonctionnement
+        du service, selon sa propre politique.
+      </li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="finalites-titre">
+    <h2 id="finalites-titre">Pourquoi et sur quelle base légale ?</h2>
+    <ul>
+      <li>
+        <strong>Publier les commentaires et les messages du livre d'or</strong> : base légale le
+        consentement, donné en publiant volontairement un message via GitHub Discussions.
+      </li>
+      <li>
+        <strong>Mesurer l'audience du site</strong> : base légale l'intérêt légitime du webmaster à
+        connaître la fréquentation de son journal, avec une mesure agrégée et sans cookie.
+      </li>
+      <li>
+        <strong>Assurer la sécurité et le bon fonctionnement du site</strong> : base légale
+        l'intérêt légitime, via les journaux de l'hébergeur.
+      </li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="destinataires-titre">
+    <h2 id="destinataires-titre">Qui reçoit les données ?</h2>
+    <ul>
+      <li>
+        <strong>GitHub</strong> (GitHub Discussions pour les commentaires, GitHub Pages pour
+        l'hébergement) — voir la{' '}
+        <a href={githubPrivacyUrl}>politique de confidentialité de GitHub</a>.
+      </li>
+      <li>
+        <strong>GoatCounter</strong> (mesure d'audience hébergée dans l'Union européenne, sans
+        cookie) — voir la{' '}
+        <a href={goatcounterPrivacyUrl}>politique de confidentialité de GoatCounter</a>.
+      </li>
+      <li>
+        <strong>Giscus</strong> est un simple client qui affiche les Discussions GitHub dans la
+        page : il ne conserve pas vos données de son côté.
+      </li>
+    </ul>
+    <p>Aucune donnée n'est vendue ni transmise à des fins publicitaires.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="durees-titre">
+    <h2 id="durees-titre">Combien de temps ?</h2>
+    <ul>
+      <li>
+        <strong>Commentaires et messages</strong> : publics et conservés jusqu'à leur suppression
+        (par vous ou par le webmaster, via GitHub Discussions).
+      </li>
+      <li>
+        <strong>Compteur</strong> : totaux agrégés, sans donnée individuelle conservée par le site.
+      </li>
+      <li>
+        <strong>Journaux d'hébergement</strong> : selon la durée de conservation de GitHub.
+      </li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="droits-titre">
+    <h2 id="droits-titre">Vos droits</h2>
+    <p>
+      Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de
+      portabilité sur vos données. Pour l'exercer, utilisez le contact indiqué plus haut, sans
+      publier d'informations personnelles dans un message public.
+    </p>
+    <p>
+      Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à
+      la <a href={cnilUrl}>CNIL</a>.
+    </p>
+  </section>
+
+  <section class="panel" aria-labelledby="cookies-titre">
+    <h2 id="cookies-titre">Cookies</h2>
+    <p>
+      Le site ne dépose aucun cookie publicitaire ni traceur. GoatCounter fonctionne sans cookie.
+      GitHub peut déposer ses propres cookies techniques dans la zone de commentaires (iframe
+      Giscus) : ils relèvent de la politique de GitHub et ne sont pas contrôlés par ce site.
+    </p>
+    <p>
+      Aucune bannière n'est affichée par le site ; les cookies éventuels de GitHub relèvent de sa
+      politique.
+    </p>
+  </section>
+
+  <section class="panel" aria-labelledby="sensibles-titre">
+    <h2 id="sensibles-titre">À garder en tête</h2>
+    <p>
+      <strong>Les commentaires sont publics : ne publiez pas de données sensibles.</strong> Un
+      message publié sur GitHub Discussions est visible par tous et peut être indexé.
+    </p>
+  </section>
+</BaseLayout>

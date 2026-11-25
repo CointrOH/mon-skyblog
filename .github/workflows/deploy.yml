@@ -59,6 +59,10 @@ jobs:
         env:
           SITE_URL: ${{ steps.config.outputs.site_url }}
           BASE_PATH: ${{ steps.config.outputs.base_path }}
+          # Code public du site GoatCounter (Settings → Secrets and variables →
+          # Actions → Variables). Vide tant qu'il n'est pas défini : le compteur
+          # affiche alors « activation en cours ».
+          PUBLIC_GOATCOUNTER_CODE: ${{ vars.GOATCOUNTER_CODE }}
 
   deploy:
     needs: build

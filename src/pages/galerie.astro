@@ -1,0 +1,173 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/base.ts';
+
+// Pixel transparent 1×1 (data URI, autorisé par la CSP via `img-src data:`).
+// Il sert de placeholder tant que le script n'a pas chargé le GIF : sans JS,
+// aucun GIF ne s'anime (le lien <noscript> permet de l'ouvrir directement).
+const EMPTY_PIXEL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+});
+
+// Tri par date décroissante, puis résolution de la source :
+// fichier uploadé dans la médiathèque (`image`) ou URL externe (`externalUrl`).
+const gallery = (await getCollection('gallery'))
+  .map((gif) => ({
+    ...gif,
+    src: gif.data.image ? withBase(gif.data.image) : (gif.data.externalUrl ?? ''),
+  }))
+  .filter((gif) => gif.src.length > 0)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout
+  title="Galerie de GIF"
+  description="La galerie de GIF animés du webmaster : paillettes, dragons et pixels, collectionnés depuis 2005."
+>
+  <h1>Galerie de GIF</h1>
+
+  <p class="home-intro">
+    Bienvenue dans l'album de famille du web : des GIF animés, des paillettes et beaucoup de
+    nostalgie. Cliquez sur une vignette pour ouvrir l'image en grand.
+  </p>
+
+  {
+    gallery.length === 0 ? (
+      <p class="panel gallery-empty">
+        Aucun GIF pour le moment. Le webmaster n'a pas encore rempli l'album.
+      </p>
+    ) : (
+      <>
+        <div class="gallery-controls">
+          <button type="button" id="gallery-pause" class="gallery-pause" aria-pressed="false">
+            ⏸ Masquer les GIFs
+          </button>
+          <p class="gallery-hint">
+            Les GIFs sont animés : vous pouvez les masquer à tout moment. Si votre système demande
+            moins d'animations (<code>prefers-reduced-motion</code>), ils restent masqués jusqu'à ce
+            que vous cliquiez sur « Afficher les GIFs ».
+          </p>
+        </div>
+
+        <ul class="gallery-grid">
+          {gallery.map((gif) => (
+            <li class="gallery-card">
+              <figure class="gallery-card__media">
+                <a
+                  class="gallery-card__image-link"
+                  href={gif.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Ouvrir le GIF « ${gif.data.title} » (nouvelle fenêtre)`}
+                >
+                  <img
+                    class="gallery-card__img"
+                    src={EMPTY_PIXEL}
+                    data-gif-src={gif.src}
+                    alt={gif.data.alt}
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                  />
+                </a>
+                <figcaption>
+                  <h2 class="gallery-card__title">{gif.data.title}</h2>
+                  <p class="gallery-card__meta">
+                    <time datetime={gif.data.date.toISOString()}>
+                      {dateFormatter.format(gif.data.date)}
+                    </time>
+                  </p>
+                  {gif.data.description && (
+                    <p class="gallery-card__desc">{gif.data.description}</p>
+                  )}
+                  {gif.data.credit && (
+                    <p class="gallery-card__meta">Crédit : {gif.data.credit}</p>
+                  )}
+                  {gif.data.tags.length > 0 && (
+                    <ul class="tag-list" aria-label="Tags du GIF">
+                      {gif.data.tags.map((tag) => (
+                        <li>{tag}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <a
+                    class="gallery-card__link"
+                    href={gif.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Ouvrir le GIF<span class="sr-only"> (nouvelle fenêtre)</span>
+                  </a>
+                  <noscript>
+                    <p class="gallery-card__meta">
+                      <a href={gif.src}>Ouvrir le GIF directement (JavaScript désactivé)</a>
+                    </p>
+                  </noscript>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+
+        <script is:inline>
+          // Chargement différé des GIFs + masquage accessible (WCAG 2.2.2).
+          // Le pixel transparent rendu par le serveur sert de placeholder.
+          (() => {
+            const images = Array.from(
+              document.querySelectorAll('.gallery-card__img[data-gif-src]'),
+            );
+            if (images.length === 0) return;
+
+            const grid = document.querySelector('.gallery-grid');
+            const button = document.getElementById('gallery-pause');
+            const placeholder = images[0].getAttribute('src') || '';
+            const reducedMotion = window.matchMedia
+              ? window.matchMedia('(prefers-reduced-motion: reduce)')
+              : null;
+
+            let hidden = false;
+            let userToggled = false;
+
+            const apply = (nextHidden) => {
+              hidden = nextHidden;
+              images.forEach((image) => {
+                const source = image.getAttribute('data-gif-src');
+                if (!source) return;
+                image.setAttribute('src', hidden ? placeholder : source);
+              });
+              if (grid) grid.classList.toggle('is-paused', hidden);
+              if (button) {
+                button.setAttribute('aria-pressed', String(hidden));
+                button.textContent = hidden ? '▶ Afficher les GIFs' : '⏸ Masquer les GIFs';
+              }
+            };
+
+            // État initial : si l'utilisateur préfère moins d'animations,
+            // les GIFs restent masqués et le bouton propose de les afficher.
+            apply(Boolean(reducedMotion && reducedMotion.matches));
+
+            if (button) {
+              button.addEventListener('click', () => {
+                userToggled = true;
+                apply(!hidden);
+              });
+            }
+
+            // Suit un changement de préférence système tant que l'utilisateur
+            // n'a pas repris la main via le bouton.
+            if (reducedMotion && typeof reducedMotion.addEventListener === 'function') {
+              reducedMotion.addEventListener('change', (event) => {
+                if (!userToggled) apply(event.matches);
+              });
+            }
+          })();
+        </script>
+      </>
+    )
+  }
+</BaseLayout>

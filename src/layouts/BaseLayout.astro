@@ -1,6 +1,7 @@
 ---
 import '../styles/skyblog.css';
 import { withBase } from '../utils/base.ts';
+import { goatcounterCode } from '../config/site.ts';
 import Banner from '../components/Banner.astro';
 import Nav from '../components/Nav.astro';
 import Marquee from '../components/Marquee.astro';
@@ -13,6 +14,11 @@ export interface Props {
 
 const { title, description } = Astro.props;
 
+// Le script de comptage GoatCounter est chargé sur toutes les pages publiques
+// (pas sur /admin/, qui a son propre HTML) : le total est ainsi site-wide.
+// Code public validé ; vide ou invalide = aucun script, aucun appel externe.
+const goatcounter = /^[a-z0-9-]+$/.test(goatcounterCode) ? goatcounterCode : '';
+
 const siteName = 'Mon Skyblog';
 const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
 ---
@@ -23,6 +29,20 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <!-- Politique de sécurité du contenu (CSP) des pages publiques.
+         Exceptions volontaires, limitées aux services retenus :
+         - script-src : giscus.app (client de commentaires) et gc.zgo.at
+           (script du compteur GoatCounter) ;
+         - img-src : data: pour le pixel transparent de la galerie et https:
+           pour les GIF externes éventuels ;
+         - connect-src : requêtes de Giscus (giscus.app, api.github.com) et
+           total du compteur GoatCounter (*.goatcounter.com, gc.zgo.at) ;
+         - frame-src : l'iframe de commentaires hébergée par giscus.app.
+         La page /admin/ a son propre HTML et n'inclut pas cette CSP. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://giscus.app https://api.github.com https://*.goatcounter.com https://gc.zgo.at; frame-src https://giscus.app; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
+    />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{fullTitle}</title>
   </head>
@@ -37,5 +57,15 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
       <slot />
     </main>
     <Footer />
+    {
+      goatcounter && (
+        <script
+          is:inline
+          async
+          src="https://gc.zgo.at/count.js"
+          data-goatcounter={`https://${goatcounter}.goatcounter.com/count`}
+        ></script>
+      )
+    }
   </body>
 </html>

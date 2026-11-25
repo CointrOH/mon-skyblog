@@ -1,20 +1,118 @@
 ---
-interface Props {
-  visits?: number;
-  label?: string;
-}
+import { goatcounterCode } from '../config/site.ts';
 
-const { visits = 1337, label = 'Compteur factice' } = Astro.props;
-const formatted = visits.toLocaleString('fr-FR');
-const digits = String(visits).padStart(6, '0').split('');
+// Le code GoatCounter est public, mais on ne l'injecte dans une URL qu'après
+// validation : un code vide ou inattendu est traité comme « non configuré »
+// (aucune requête externe, aucun script chargé).
+const code = /^[a-z0-9-]+$/.test(goatcounterCode) ? goatcounterCode : '';
+const isConfigured = code.length > 0;
+
+// Six chiffres par défaut, comme un vieux compteur : le script remplace la
+// valeur sans changer la largeur (pas de décalage de mise en page).
+const initialDigits = ['0', '0', '0', '0', '0', '0'];
 ---
 
 <section class="widget" aria-labelledby="compteur-titre">
   <h2 class="widget__title" id="compteur-titre">Visiteurs</h2>
-  <p class="counter" aria-hidden="true">
-    {digits.map((digit) => <span class="counter__digit">{digit}</span>)}
-  </p>
-  <p class="counter__label">
-    <strong>{label}</strong> : {formatted} visites (chiffre inventé, comme en 2005).
-  </p>
+
+  {
+    isConfigured ? (
+      <>
+        <p class="counter" aria-hidden="true">
+          {initialDigits.map((digit) => (
+            <span class="counter__digit">{digit}</span>
+          ))}
+        </p>
+        <p class="counter__label">
+          <strong>Compteur réel</strong> : <span id="visit-counter-value">chargement…</span>{' '}
+          visites
+        </p>
+        <p class="widget__note">
+          Compteur GoatCounter, sans cookie. Le chiffre affiché est mis à jour toutes les 4 h
+          (cache).
+        </p>
+        <script is:inline define:vars={{ code }}>
+          // Récupère le total agrégé GoatCounter et met à jour l'affichage.
+          // En cas d'échec réseau, on affiche « indisponible » sans casser la page.
+          (() => {
+            const valueEl = document.getElementById('visit-counter-value');
+            const counterEl = document.querySelector('.counter');
+            const digits = counterEl
+              ? Array.from(counterEl.querySelectorAll('.counter__digit'))
+              : [];
+
+            const renderDigits = (raw) => {
+              if (!counterEl) return;
+              const normalized = String(raw).replace(/\D/g, '');
+              if (!normalized) return;
+              const padded = normalized.padStart(6, '0');
+
+              if (padded.length === digits.length) {
+                padded.split('').forEach((digit, index) => {
+                  digits[index].textContent = digit;
+                });
+                return;
+              }
+
+              // Nombre plus grand que six chiffres : on reconstruit les spans
+              // (le CSS garde une largeur fixe par chiffre).
+              counterEl.textContent = '';
+              digits.length = 0;
+              for (const digit of padded) {
+                const span = document.createElement('span');
+                span.className = 'counter__digit';
+                span.textContent = digit;
+                counterEl.appendChild(span);
+                digits.push(span);
+              }
+            };
+
+            fetch(`https://${code}.goatcounter.com/counter/TOTAL.json`, {
+              credentials: 'omit',
+            })
+              .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+              })
+              .then((data) => {
+                const raw = data && data.count != null ? data.count : '';
+                const digitsOnly = String(raw).replace(/\D/g, '');
+                if (!digitsOnly) throw new Error('Réponse inattendue');
+                renderDigits(digitsOnly);
+                if (valueEl) {
+                  valueEl.textContent = Number(digitsOnly).toLocaleString('fr-FR');
+                }
+              })
+              .catch(() => {
+                if (valueEl) valueEl.textContent = 'indisponible';
+                // Pas de faux total « 000000 » en cas d'échec : on repasse le
+                // gabarit en état « en attente » avec un tiret.
+                if (counterEl) {
+                  counterEl.classList.add('counter--pending');
+                  counterEl.textContent = '';
+                  digits.length = 0;
+                  const span = document.createElement('span');
+                  span.className = 'counter__digit';
+                  span.textContent = '—';
+                  counterEl.appendChild(span);
+                  digits.push(span);
+                }
+              });
+          })();
+        </script>
+      </>
+    ) : (
+      <>
+        <p class="counter counter--pending" aria-hidden="true">
+          <span class="counter__digit">—</span>
+        </p>
+        <p class="counter__label">
+          <strong>Compteur réel</strong> : activation en cours
+        </p>
+        <p class="widget__note">
+          Le webmaster doit créer le site GoatCounter et définir GOATCOUNTER_CODE.
+        </p>
+      </>
+    )
+  }
 </section>

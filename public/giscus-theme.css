@@ -1,0 +1,199 @@
+/* ==========================================================================
+   Thème Giscus « Mon Skyblog » — palette rétro 1990-2000
+   Fichier chargé dans l'iframe de commentaires Giscus via une adresse absolue
+   (attribut data-theme du script Giscus). Aucune ressource externe, aucune
+   police distante : uniquement des variables GitHub Primer et des polices
+   système. Le thème ne prétend pas restyler tout le DOM de Giscus : les
+   variables colorent l'interface, quelques règles ciblées habillent la boîte
+   de commentaire et les messages (classes vérifiées dans le code de Giscus).
+   ========================================================================== */
+
+main {
+  color-scheme: light;
+
+  /* Typographies système : Georgia par défaut, Comic Sans pour les auteurs. */
+  --font-family-sans: Georgia, 'Times New Roman', serif;
+  --font-family-monospace: 'Courier New', Courier, monospace;
+  --font-family-default: var(--font-family-sans);
+
+  /* Surfaces */
+  --color-canvas-default: #fffdf5;
+  --color-canvas-overlay: #fffdf5;
+  --color-canvas-subtle: #fff3c4;
+  --color-canvas-inset: #fff3c4;
+
+  /* Textes */
+  --color-fg-default: #1b1b1b;
+  --color-fg-muted: #4a4a4a;
+  --color-fg-subtle: #5a4a54;
+
+  /* Bordures */
+  --color-border-default: #7a5c6c;
+  --color-border-muted: #866b79;
+  --color-neutral-muted: rgba(122, 92, 108, 0.16);
+
+  /* Liens et accents */
+  --color-accent-fg: #003fb3;
+  --color-accent-emphasis: #a1004f;
+  --color-accent-muted: rgba(161, 0, 79, 0.45);
+  --color-accent-subtle: #ffd1e8;
+
+  /* Boutons secondaires */
+  --color-btn-text: #1b1b1b;
+  --color-btn-bg: #fff3c4;
+  --color-btn-border: #7a5c6c;
+  --color-btn-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+  --color-btn-inset-shadow: inset 0 1px 0 #fffdf5;
+  --color-btn-hover-bg: #ffd1e8;
+  --color-btn-hover-border: #5e1b8a;
+  --color-btn-active-bg: #f4d7e7;
+  --color-btn-active-border: #5e1b8a;
+  --color-btn-selected-bg: #ffe600;
+
+  /* Boutons principaux (envoi du commentaire) */
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #a1004f;
+  --color-btn-primary-border: #5c0030;
+  --color-btn-primary-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  --color-btn-primary-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --color-btn-primary-hover-bg: #5e1b8a;
+  --color-btn-primary-hover-border: #3f0d63;
+  --color-btn-primary-selected-bg: #5e1b8a;
+  --color-btn-primary-selected-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  --color-btn-primary-disabled-text: #ffffff;
+  --color-btn-primary-disabled-bg: #8a4763;
+  --color-btn-primary-disabled-border: #7a5c6c;
+
+  /* Contrôles segmentés et survols de listes */
+  --color-action-list-item-default-hover-bg: #ffd1e8;
+  --color-segmented-control-bg: #f4d7e7;
+  --color-segmented-control-button-bg: #fffdf5;
+  --color-segmented-control-button-selected-border: #7a5c6c;
+
+  /* États */
+  --color-success-fg: #0b5d2a;
+  --color-attention-fg: #6b4b00;
+  --color-attention-muted: rgba(107, 75, 0, 0.4);
+  --color-attention-subtle: #fff3c4;
+  --color-danger-fg: #8a1020;
+  --color-danger-muted: rgba(138, 16, 32, 0.4);
+  --color-danger-subtle: #ffe3e6;
+  --color-primer-shadow-inset: inset 0 1px 0 rgba(122, 92, 108, 0.18);
+  --color-scale-gray-1: #f4d7e7;
+  --color-scale-blue-1: #ffd1e8;
+
+  /* Réactions */
+  --color-social-reaction-bg-hover: #fff3c4;
+  --color-social-reaction-bg-reacted-hover: #ffd1e8;
+
+  /* Coloration syntaxique des blocs de code (lisible sur #fff3c4) */
+  --color-prettylights-syntax-comment: #5f4b55;
+  --color-prettylights-syntax-constant: #003fb3;
+  --color-prettylights-syntax-entity: #5e1b8a;
+  --color-prettylights-syntax-storage-modifier-import: #1b1b1b;
+  --color-prettylights-syntax-entity-tag: #0b5d2a;
+  --color-prettylights-syntax-keyword: #a1004f;
+  --color-prettylights-syntax-string: #0a4f3f;
+  --color-prettylights-syntax-variable: #7a3e00;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #8a1020;
+  --color-prettylights-syntax-invalid-illegal-text: #ffffff;
+  --color-prettylights-syntax-invalid-illegal-bg: #8a1020;
+  --color-prettylights-syntax-carriage-return-text: #ffffff;
+  --color-prettylights-syntax-carriage-return-bg: #a1004f;
+  --color-prettylights-syntax-string-regexp: #0a4f3f;
+  --color-prettylights-syntax-markup-list: #5a3b00;
+  --color-prettylights-syntax-markup-heading: #003fb3;
+  --color-prettylights-syntax-markup-italic: #1b1b1b;
+  --color-prettylights-syntax-markup-bold: #1b1b1b;
+  --color-prettylights-syntax-markup-deleted-text: #7a0f1c;
+  --color-prettylights-syntax-markup-deleted-bg: #ffe3e6;
+  --color-prettylights-syntax-markup-inserted-text: #0b5d2a;
+  --color-prettylights-syntax-markup-inserted-bg: #e8f5e0;
+  --color-prettylights-syntax-markup-changed-text: #6b3b00;
+  --color-prettylights-syntax-markup-changed-bg: #ffeecc;
+  --color-prettylights-syntax-markup-ignored-text: #4a4a4a;
+  --color-prettylights-syntax-markup-ignored-bg: #e8e2d5;
+  --color-prettylights-syntax-meta-diff-range: #5e1b8a;
+  --color-prettylights-syntax-brackethighlighter-angle: #5a4a54;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #6b4f5e;
+  --color-prettylights-syntax-constant-other-reference-link: #003fb3;
+
+  background-color: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  font-family: var(--font-family-default);
+}
+
+/* Boîte de commentaire : fond crème, cadre biseauté, ombre dure. */
+main form.gsc-comment-box {
+  background-color: var(--color-canvas-subtle);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Le CSS de base borde la variante « non-réponse » avec deux classes :
+   form + :not() garde une spécificité supérieure pour imposer le ridge. */
+main form.gsc-comment-box:not(.gsc-comment-box-is-reply) {
+  border: 3px ridge var(--color-border-default);
+  border-radius: 0;
+}
+
+main form.gsc-comment-box-is-reply {
+  border: 2px groove var(--color-border-default);
+  border-radius: 0;
+}
+
+/* Message : double cadre biseauté et coins carrés. */
+main .gsc-comment {
+  padding: 3px;
+  background-color: var(--color-canvas-subtle);
+  border: 3px ridge var(--color-border-default);
+  border-radius: 0;
+}
+
+main .gsc-comment > div {
+  background-color: var(--color-canvas-default);
+  border: 2px groove var(--color-border-default);
+  border-radius: 0;
+}
+
+/* Auteurs en Comic Sans, contenu en Georgia. */
+main .gsc-comment-author,
+main .gsc-reply-author {
+  font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', cursive;
+}
+
+main .gsc-comment-content,
+main .gsc-reply-content {
+  color: var(--color-fg-default);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* Zone de saisie et boutons : mêmes polices, bords francs. */
+main .gsc-comment-box-textarea {
+  background-color: var(--color-canvas-default);
+  border: 2px inset var(--color-border-default);
+  border-radius: 0;
+  color: var(--color-fg-default);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+main .gsc-reply-box {
+  background-color: var(--color-canvas-subtle);
+  border: 2px groove var(--color-border-default);
+  border-radius: 0;
+}
+
+main .btn,
+main .gsc-comment-box-tabs button {
+  border-radius: 0;
+}
+
+/* Avatars carrés, eux aussi. */
+main .gsc-comment-author-avatar img,
+main .gsc-reply-author-avatar img {
+  background-color: var(--color-canvas-default);
+  border: 2px inset var(--color-border-default);
+  border-radius: 0;
+}

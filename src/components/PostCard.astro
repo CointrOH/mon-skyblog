@@ -32,7 +32,7 @@ const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
       <img
         class="post-card__cover"
         src={cover}
-        alt={`Illustration de l'article « ${article.data.title} »`}
+        alt={article.data.coverAlt ?? `Illustration de l'article « ${article.data.title} »`}
         loading="lazy"
       />
     )

@@ -73,6 +73,15 @@ collections:
         label: Image de couverture
         widget: image
         required: false
+      - name: coverAlt
+        label: Texte alternatif de la couverture
+        widget: string
+        required: false
+        hint: 'Décrivez l’image pour les lecteurs d’écran'
+      - name: coverCaption
+        label: Légende de la couverture
+        widget: string
+        required: false
       - name: draft
         label: Brouillon
         widget: boolean
@@ -80,3 +89,65 @@ collections:
       - name: body
         label: Contenu
         widget: markdown
+        hint: 'Pour insérer une image dans le texte, utilisez le bouton Image de la barre d’outils (médiathèque). L’image de couverture se met dans le champ dédié.'
+
+  # Galerie de GIF : alimentée uniquement par l'administration.
+  # Les médias passent par la médiathèque globale (`media_folder` ci-dessus) :
+  # pas de media_folder de collection.
+  - name: gallery
+    label: Galerie
+    label_singular: GIF
+    description: 'Album de GIF du webmaster. Uploadez les fichiers via la médiathèque (champ Image) et évitez les fichiers lourds : un GIF de plus de 2 Mo ralentit la page.'
+    folder: src/content/gallery
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    # Champs alignés 1:1 sur le schéma `gallery` de src/content/config.ts.
+    fields:
+      - name: title
+        label: Titre
+        widget: string
+        pattern:
+          - '^.{2,}$'
+          - 'Le titre doit contenir au moins 2 caractères (schéma Astro).'
+      - name: date
+        label: Date d’ajout
+        widget: datetime
+        date_format: 'YYYY-MM-DD'
+        time_format: false
+        format: 'YYYY-MM-DD'
+      - name: image
+        label: Fichier GIF
+        widget: image
+        required: false
+        hint: 'Uploadez le GIF via la médiathèque. Évitez les fichiers lourds (plus de 2 Mo) : préférez un GIF court et léger.'
+      - name: externalUrl
+        label: URL externe
+        widget: string
+        required: false
+        hint: 'URL https d’un GIF externe, optionnel ; l’upload est préférable'
+      - name: alt
+        label: Texte alternatif
+        widget: string
+        required: true
+        pattern:
+          - '^.{3,}$'
+          - 'Le texte alternatif doit contenir au moins 3 caractères (schéma Astro).'
+        hint: 'Décrivez le GIF pour les lecteurs d’écran'
+      - name: description
+        label: Description
+        widget: text
+        required: false
+      - name: credit
+        label: Crédit
+        widget: string
+        required: false
+      - name: tags
+        label: Tags
+        widget: list
+        default: []
+        field:
+          name: tag
+          label: Tag
+          widget: string

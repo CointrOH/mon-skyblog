@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleNav from '../../components/ArticleNav.astro';
+import Comments from '../../components/Comments.astro';
 import { withBase } from '../../utils/base.ts';
 import { entryIdToSlug } from '../../utils/slug.ts';
 
@@ -37,20 +38,6 @@ const { Content } = await render(article);
 
 const homeUrl = withBase('/');
 const tags = article.data.tags;
-
-// Commentaires fictifs : section clairement étiquetée « démonstration ».
-const comments = [
-  {
-    author: 'xX_darkangel_Xx',
-    date: '15 juin 2005 à 21:04',
-    body: "Trop fort ce billet, je l'ai mis dans mes favoris !",
-  },
-  {
-    author: 'le visiteur du 56k',
-    date: '18 juin 2005 à 14:37',
-    body: 'Ça me rappelle mon premier site, quelle époque.',
-  },
-];
 ---
 
 <BaseLayout title={article.data.title} description={article.data.description}>
@@ -85,33 +72,30 @@ const comments = [
       }
     </header>
 
+    {
+      article.data.cover && (
+        <figure class="article__cover">
+          <img
+            class="article__cover__img"
+            src={withBase(article.data.cover)}
+            alt={article.data.coverAlt ?? `Illustration de l'article « ${article.data.title} »`}
+            loading="eager"
+            decoding="async"
+          />
+          {article.data.coverCaption && <figcaption>{article.data.coverCaption}</figcaption>}
+        </figure>
+      )
+    }
+
     <div class="prose">
       <Content />
     </div>
 
-    <section class="comments" aria-labelledby="commentaires-titre">
-      <h2 id="commentaires-titre">
-        Commentaires <span class="comments__badge">démonstration</span>
-      </h2>
-      <ul class="comments__list">
-        {
-          comments.map((comment) => (
-            <li class="comment">
-              <p class="comment__author">
-                {comment.author}
-                {' — '}
-                {comment.date}
-              </p>
-              <p class="comment__body">« {comment.body} »</p>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="widget__note">
-        Section de démonstration : les commentaires sont fictifs et aucun formulaire n'est
-        connecté.
-      </p>
-    </section>
+    <Comments
+      heading="Commentaires"
+      intro="Un souvenir à partager, une correction, une question ? Laissez un commentaire sous cet article ; il s'affiche une fois publié."
+      sectionId="commentaires"
+    />
   </article>
 
   <ArticleNav previous={previous} next={next} />

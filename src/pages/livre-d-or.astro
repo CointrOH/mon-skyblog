@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Comments from '../components/Comments.astro';
+---
+
+<BaseLayout
+  title="Livre d'or"
+  description="Le livre d'or de Mon Skyblog : laissez un petit mot, comme au bon vieux temps des pages perso."
+>
+  <h1>Livre d'or</h1>
+
+  <div class="panel">
+    <p>
+      Avant, chaque page perso avait son livre d'or. Celui-ci n'a pas bougé : installez-vous,
+      laissez un petit mot au webmaster et repartez avec la satisfaction du devoir accompli.
+    </p>
+    <p>
+      Pas besoin de formulaire compliqué : les messages passent par GitHub Discussions. Un compte
+      GitHub est nécessaire pour participer, et les messages sont publics.
+    </p>
+  </div>
+
+  <Comments
+    heading="Les messages"
+    intro="Un bonjour, un souvenir du 56k, une critique constructive ? Écrivez votre message ci-dessous."
+    sectionId="livre-d-or-commentaires"
+    note="Les messages sont publics : ne publiez pas de données sensibles. Ils ne sont pas modérés a priori et s'affichent dès leur publication."
+  />
+</BaseLayout>

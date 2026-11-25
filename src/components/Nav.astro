@@ -6,7 +6,8 @@ const home = withBase('/');
 const links = [
   { href: home, label: 'Accueil' },
   { href: `${home}#articles`, label: 'Articles' },
-  { href: `${home}#livre-dor`, label: "Livre d'or" },
+  { href: withBase('/livre-d-or/'), label: "Livre d'or" },
+  { href: withBase('/galerie/'), label: 'Galerie' },
   { href: `${home}#webring`, label: 'Webring' },
 ];
 ---

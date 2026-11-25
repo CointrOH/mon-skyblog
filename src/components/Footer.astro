@@ -6,13 +6,19 @@ const year = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="page">
-    <p>© 2005–{year} Mon Skyblog — site de démonstration, fait main.</p>
+    <p>© 2005–{year} Mon Skyblog — site artisanal, fait main.</p>
     <p class="site-footer__small">
       <span lang="en">Best viewed in 800×600</span>
-      {' · HTML 4.01 · Notepad · sans cookie ni analytics'}
+      {' · HTML 4.01 · Notepad · compteur GoatCounter sans cookie · commentaires Giscus'}
     </p>
     <p>
       <a href={withBase('/')}>Accueil</a>
+      {' · '}
+      <a href={withBase('/livre-d-or/')}>Livre d'or</a>
+      {' · '}
+      <a href={withBase('/galerie/')}>Galerie</a>
+      {' · '}
+      <a href={withBase('/confidentialite/')}>Confidentialité</a>
       {' · '}
       <a href="#contenu">Haut de page</a>
     </p>
