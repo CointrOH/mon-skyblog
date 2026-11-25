@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Droits minimaux requis pour publier sur GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement Pages à la fois, sans annuler un déploiement en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Compute site URL and base path
+        run: |
+          if [ -n "${{ vars.SITE_URL }}" ]; then
+            SITE_URL="${{ vars.SITE_URL }}"
+          else
+            SITE_URL="https://${{ github.repository_owner }}.github.io"
+          fi
+
+          if [ -n "${{ vars.BASE_PATH }}" ]; then
+            BASE_PATH="${{ vars.BASE_PATH }}"
+          elif [[ "${{ github.event.repository.name }}" == *.github.io ]]; then
+            BASE_PATH="/"
+          else
+            BASE_PATH="/${{ github.event.repository.name }}"
+          fi
+
+          echo "SITE_URL=$SITE_URL" >> "$GITHUB_ENV"
+          echo "BASE_PATH=$BASE_PATH" >> "$GITHUB_ENV"
+
+      - name: Build with Astro
+        uses: withastro/action@v6
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+          BASE_PATH: ${{ env.BASE_PATH }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/base.ts';
 import { entryIdToSlug } from '../utils/slug.ts';
 
 const articles = (await getCollection('blog'))
@@ -33,7 +34,7 @@ const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
           <li>
             <article>
               <h2>
-                <a href={`/blog/${entryIdToSlug(article.id)}/`}>{article.data.title}</a>
+                <a href={withBase(`/blog/${entryIdToSlug(article.id)}/`)}>{article.data.title}</a>
               </h2>
               <p class="meta">
                 <time datetime={article.data.date.toISOString()}>

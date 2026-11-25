@@ -2,7 +2,9 @@
 // Page d'administration Decap CMS.
 // Le CMS est chargé depuis le paquet npm `decap-cms-app` (bundlé par Vite) :
 // aucun script ni asset n'est chargé depuis un CDN au runtime.
-const cmsConfigUrl = `${import.meta.env.BASE_URL}admin/config.yml`;
+import { withBase } from '../../utils/base.ts';
+
+const cmsConfigUrl = withBase('/admin/config.yml');
 ---
 
 <!doctype html>

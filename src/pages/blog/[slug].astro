@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../utils/base.ts';
 import { entryIdToSlug } from '../../utils/slug.ts';
 
 export async function getStaticPaths() {
@@ -53,7 +54,7 @@ const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
     </div>
 
     <p class="back-link">
-      <a href="/">← Retour à la liste des articles</a>
+      <a href={withBase('/')}>← Retour à la liste des articles</a>
     </p>
   </article>
 </BaseLayout>

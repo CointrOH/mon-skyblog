@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/base.ts';
 ---
 
 <BaseLayout
@@ -12,6 +13,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     déplacée lors du grand ménage du web.
   </p>
   <p>
-    <a href="/">← Retour à la page d'accueil</a>
+    <a href={withBase('/')}>← Retour à la page d'accueil</a>
   </p>
 </BaseLayout>

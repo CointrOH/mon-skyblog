@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../utils/base.ts';
+
 export interface Props {
   title: string;
   description: string;
@@ -103,7 +105,7 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
   <body>
     <a class="skip-link" href="#contenu">Aller au contenu</a>
     <header class="site-header">
-      <p class="site-title"><a href="/">Mon Skyblog</a></p>
+      <p class="site-title"><a href={withBase('/')}>Mon Skyblog</a></p>
       <p class="site-tagline">Journal rétro d'un webmaster nostalgique</p>
     </header>
     <main id="contenu">

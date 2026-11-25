@@ -29,7 +29,11 @@ builds déterministes et éviter toute écriture de fichier hors du projet.
 ## Structure
 
 ```
+.github/
+└── workflows/
+    └── deploy.yml             # CI : build Astro + publication GitHub Pages
 public/
+├── .nojekyll                  # Désactive Jekyll sur GitHub Pages (préserve _astro/)
 ├── admin/
 │   └── config.yml             # Configuration Decap CMS (backend, collection blog)
 └── images/
@@ -46,6 +50,7 @@ src/
 │   ├── admin/index.astro      # Interface d'administration Decap CMS (/admin/)
 │   └── blog/[slug].astro      # Page d'un article
 └── utils/
+    ├── base.ts                # withBase() : préfixe les liens internes par le base path
     └── slug.ts                # Conversion identifiant de contenu → slug d'URL
 ```
 
@@ -122,3 +127,52 @@ correspondent exactement au schéma `.strict()` de `src/content/config.ts` ; `bo
 Markdown de l'entrée et n'est pas écrit dans le frontmatter. Tout ajout de champ côté CMS doit
 être répercuté dans le schéma Astro, sinon le build échoue.
 
+
+## Déploiement (GitHub Pages)
+
+Le site est publié automatiquement par GitHub Actions à chaque push sur `main` (et manuellement
+via « Run workflow »). Workflow : [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+### Prérequis (une seule fois)
+
+1. Pousser le dépôt sur GitHub ;
+2. Dans le dépôt : **Settings → Pages → Source = GitHub Actions** ;
+3. (Facultatif) **Settings → Secrets and variables → Actions → Variables** :
+   - `SITE_URL` — URL publique du site (ex. domaine personnalisé) ;
+   - `BASE_PATH` — chemin de base si vous voulez forcer une valeur.
+
+Le workflow ne lit aucun secret : seules des *variables de dépôt* optionnelles sont utilisées.
+
+### URL et chemin de base automatiques
+
+Sans variable de dépôt, le workflow déduit les valeurs :
+
+- **Page utilisateur** (dépôt nommé `<owner>.github.io`) : `BASE_PATH=/`, site servi à la racine ;
+- **Page de projet** (dépôt `mon-repo`) : `BASE_PATH=/mon-repo`, site servi sous
+  `https://<owner>.github.io/mon-repo/` ;
+- `SITE_URL` vaut par défaut `https://<owner>.github.io`.
+
+Ces valeurs sont transmises à Astro via les variables d'environnement `SITE_URL` et `BASE_PATH`,
+lues par `astro.config.mjs` (le placeholder local `https://example.github.io` est surchargé en
+CI). Pour un **domaine personnalisé**, définir la variable `SITE_URL` (et configurer le domaine
+dans Settings → Pages), en laissant `BASE_PATH` vide ou `/`.
+
+`public/.nojekyll` est copié dans `dist/` : il évite le traitement Jekyll de GitHub Pages et
+préserve les dossiers commençant par `_` (comme `_astro/`).
+
+### Liens et assets « base-aware »
+
+Tous les liens internes passent par `withBase()` (`src/utils/base.ts`) et Astro préfixe les
+assets : le même build fonctionne à la racine (`/`) que sous un sous-dossier (`/mon-repo/`).
+Pour reproduire un build de page de projet en local :
+
+```sh
+SITE_URL=https://sebastienzam.github.io BASE_PATH=/skyblog npm run build
+```
+
+### Note médias (suivie en T5/T6)
+
+Le `public_folder` de Decap CMS vaut `/images/uploads`, un chemin **absolu**. Si le site est
+déployé sous une base de projet (`/mon-repo`), les chemins d'images écrits par le CMS devront
+être préfixés de la même façon que les autres liens ; la documentation et l'éventuel correctif
+sont renvoyés à T5/T6.
