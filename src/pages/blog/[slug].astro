@@ -1,0 +1,94 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { entryIdToSlug } from '../../utils/slug.ts';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('blog');
+  return articles
+    .filter((article) => (import.meta.env.PROD ? !article.data.draft : true))
+    .map((article) => ({
+      params: { slug: entryIdToSlug(article.id) },
+      props: { article },
+    }));
+}
+
+interface Props {
+  article: CollectionEntry<'blog'>;
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+// Heure neutralisée : une simple date de publication, affichée en français.
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout title={article.data.title} description={article.data.description}>
+  <article>
+    <h1>{article.data.title}</h1>
+    <p class="meta">
+      Publié le
+      <time datetime={article.data.date.toISOString()}>
+        {dateFormatter.format(article.data.date)}
+      </time>
+      par {article.data.author}
+    </p>
+
+    {
+      article.data.tags.length > 0 && (
+        <ul class="tags" aria-label="Tags de l'article">
+          {article.data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <p class="back-link">
+      <a href="/">← Retour à la liste des articles</a>
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+  }
+
+  .tags li {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .prose :global(h2) {
+    margin-top: 1.75rem;
+  }
+
+  .back-link {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+</style>

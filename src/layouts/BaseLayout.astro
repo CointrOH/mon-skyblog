@@ -1,0 +1,116 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+
+const siteName = 'Mon Skyblog';
+const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{fullTitle}</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --fg: #1f2430;
+        --muted: #5a6270;
+        --accent: #8a2b06;
+        --bg: #fbf7ef;
+        --border: #d8cfc0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--bg);
+        color: var(--fg);
+        font-family: Georgia, 'Times New Roman', serif;
+        line-height: 1.6;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        top: 0;
+        background-color: var(--fg);
+        color: var(--bg);
+        padding: 0.5rem 1rem;
+        z-index: 10;
+      }
+
+      .skip-link:focus {
+        left: 0.5rem;
+        top: 0.5rem;
+      }
+
+      .site-header,
+      .site-footer {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 1rem 1.25rem;
+      }
+
+      .site-header {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .site-title {
+        margin: 0;
+        font-size: 1.1rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .site-title a {
+        color: var(--fg);
+        text-decoration: none;
+      }
+
+      .site-tagline {
+        margin: 0.25rem 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      main {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+      }
+
+      .site-footer {
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <header class="site-header">
+      <p class="site-title"><a href="/">Mon Skyblog</a></p>
+      <p class="site-tagline">Journal rétro d'un webmaster nostalgique</p>
+    </header>
+    <main id="contenu">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Mon Skyblog — journal rétro, contenu de démonstration.</p>
+    </footer>
+  </body>
+</html>

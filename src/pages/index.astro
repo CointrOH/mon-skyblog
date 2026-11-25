@@ -1,0 +1,77 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { entryIdToSlug } from '../utils/slug.ts';
+
+const articles = (await getCollection('blog'))
+  .filter((article) => (import.meta.env.PROD ? !article.data.draft : true))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Heure neutralisée : on n'affiche qu'une date de publication, en français.
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout
+  title="Mon Skyblog"
+  description="Journal rétro d'un webmaster nostalgique : chroniques, bricolages HTML et souvenirs du web des années 2000."
+>
+  <h1>Mon Skyblog</h1>
+  <p>
+    Bienvenue sur ce journal rétro. Ici, on parle du web d'avant les réseaux sociaux : des pages
+    personnelles, du HTML écrit à la main et des ambiances colorées.
+  </p>
+
+  {
+    articles.length === 0 ? (
+      <p>Aucun article publié pour le moment.</p>
+    ) : (
+      <ul class="article-list">
+        {articles.map((article) => (
+          <li>
+            <article>
+              <h2>
+                <a href={`/blog/${entryIdToSlug(article.id)}/`}>{article.data.title}</a>
+              </h2>
+              <p class="meta">
+                <time datetime={article.data.date.toISOString()}>
+                  {dateFormatter.format(article.data.date)}
+                </time>
+                {' — '}
+                {article.data.author}
+              </p>
+              <p>{article.data.description}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .article-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-list li + li {
+    border-top: 1px solid var(--border);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .article-list h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.4rem;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+</style>
