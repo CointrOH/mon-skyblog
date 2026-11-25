@@ -29,6 +29,8 @@ builds déterministes et éviter toute écriture de fichier hors du projet.
 ## Structure
 
 ```
+docs/
+└── decap-oauth.md             # Procédure OAuth de production (GitHub OAuth/App + worker)
 .github/
 └── workflows/
     └── deploy.yml             # CI : build Astro + publication GitHub Pages
@@ -93,16 +95,23 @@ déposées dans `public/images/uploads/`.
 Le script `npm run cms` ne sert qu'au développement : en production, il n'y a pas de proxy local
 et l'écriture passe par le backend Git.
 
-### Backend de production (placeholders à compléter en T5)
+### Backend de production (OAuth)
 
-`public/admin/config.yml` contient des **placeholders explicitement commentés** :
+Le backend GitHub de Decap CMS ne peut pas s'authentifier depuis un site statique : il faut un
+petit **service OAuth externe** (worker Cloudflare type `sveltia-cms-auth`, ou service hébergé
+Decap Turbo). La procédure complète, la checklist de sécurité et la procédure de test sont
+décrites dans **[`docs/decap-oauth.md`](docs/decap-oauth.md)**.
 
-- `backend.repo: owner/repo` — à remplacer par le dépôt GitHub réel ;
-- `backend.base_url` (commenté) — URL du proxy OAuth, à renseigner en production.
+Trois valeurs sont à fournir (voir la doc) :
 
-Tant que ces valeurs ne sont pas remplacées, le mode local fonctionne mais le backend GitHub de
-production ne peut pas authentifier l'utilisateur : **la mise en production nécessite un flux
-OAuth** (documenté séparément, tâche T5).
+- `backend.repo` — le dépôt GitHub réel (`<owner>/<repo>`) ;
+- `backend.base_url` — l'**origine** du service OAuth (ex.
+  `https://sveltia-cms-auth.<compte>.workers.dev`, sans chemin ni slash final) ;
+- `backend.auth_scope` (optionnel) — `public_repo` si le dépôt est public.
+
+Aucun secret n'est stocké dans ce dépôt : le client secret reste dans les variables du worker
+(ou dans le service hébergé). Tant que `repo` et `base_url` ne sont pas renseignés, le mode local
+fonctionne mais la production ne peut pas authentifier les éditeurs.
 
 ### Recette de validation manuelle (navigateur)
 

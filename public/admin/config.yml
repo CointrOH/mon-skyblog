@@ -6,14 +6,19 @@
 
 backend:
   name: github
-  # PLACEHOLDER : remplacer "owner/repo" par le dépôt GitHub réel du site.
-  # À renseigner en T5 avec le proxy OAuth (voir documentation Decap « GitHub backend »).
+  # PLACEHOLDER n°1 : remplacer "owner/repo" par le dépôt GitHub réel du site
+  # (ex. "sebastienzam/skyblog"). Voir docs/decap-oauth.md.
   repo: owner/repo
   branch: main
-  # PLACEHOLDER : URL du proxy OAuth (Cloudflare Worker, Netlify, etc.) à renseigner
-  # en production (T5). En local, ce champ n'est pas utilisé grâce à `local_backend`.
-  # base_url: https://oauth.example.com
+  # PLACEHOLDER n°2 : origine du service OAuth de production (Cloudflare Worker
+  # type sveltia-cms-auth), SANS chemin ni slash final, ex. :
+  # base_url: https://sveltia-cms-auth.<compte>.workers.dev
+  # Sans cette valeur, le backend GitHub ne peut pas s'authentifier en production.
+  # En local, ce champ n'est pas utilisé grâce à `local_backend`.
+  # Procédure complète : docs/decap-oauth.md
   auth_endpoint: auth
+  # Optionnel n°3 : si le dépôt est public, limiter le scope demandé à GitHub.
+  # auth_scope: public_repo
 
 # Écriture locale sans OAuth : decap-server (port 8081) proxifie les appels.
 local_backend: true
