@@ -27,9 +27,8 @@ une administration auto-hébergée en `/admin/` (aucun CDN).
   articles et `/livre-d-or/` ; tant que `COMMENTS_API` / `TURNSTILE_SITE_KEY` ne sont pas
   configurées, le site affiche un placeholder « commentaires en cours d'activation » sans
   formulaire, script Turnstile ni requête.
-- **Compteur GoatCounter** réel (sans cookie) : comptage sur toutes les pages publiques,
-  affichage sur l'accueil, avec repli honnête « activation en cours » tant que le site
-  GoatCounter n'est pas configuré.
+- **Compteur GoatCounter** réel (sans cookie) : site `skyblog-cointroh`, comptage sur toutes
+  les pages publiques, affichage sur l'accueil, total mis en cache 4 h.
 - **Page `/confidentialite/`** : données traitées, finalités et bases légales, sous-traitants,
   durées, droits RGPD, cookies.
 - **Thème rétro accessible** : polices 100 % système, motifs CSS, cadres biseautés, bannière
@@ -516,8 +515,8 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 
 **À faire côté propriétaire (services externes)** :
 
-- [ ] **Créer le site GoatCounter** puis la variable `GOATCOUNTER_CODE`
-      (Settings → Secrets and variables → Actions → Variables) ;
+- [x] **Site GoatCounter** `skyblog-cointroh` créé, compteur public autorisé, variable
+      `GOATCOUNTER_CODE` définie et site redéployé ;
 - [ ] **Créer l'adresse email de contact RGPD** et la renseigner dans `src/config/site.ts`
       (`contactEmail`), puis redéployer ;
 - [x] **Worker de commentaires déployé** : D1 `mon-skyblog-comments-eu` en UE, widget Turnstile,
@@ -527,7 +526,7 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
 - [x] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message,
       limitation de débit, `/livre-d-or/`, `/galerie/` et `/confidentialite/` ;
 - [x] **Rotation des secrets exposés** effectuée (token API Cloudflare et secret Turnstile) ;
-- [ ] Tester le compteur GoatCounter après création du site.
+- [x] Compteur GoatCounter vérifié (`TOTAL.json` à 200, `count.js` chargé).
 
 **À vérifier côté navigateur** :
 

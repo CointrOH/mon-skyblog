@@ -206,6 +206,6 @@ Cloudflare et ne sont jamais committés. Le composant `Comments` n'émet aucune 
 aucun formulaire tant que `COMMENTS_API` et `TURNSTILE_SITE_KEY` ne sont pas définies.
 
 Le Worker et la base D1 (`mon-skyblog-comments-eu`, région EEUR) sont déployés, les secrets et
-variables sont en place et le formulaire est en ligne. Les actions restantes (recette navigateur,
-rotation des secrets exposés dans le chat, site GoatCounter, adresse de contact RGPD) sont suivies
-dans le `BACKLOG.md` §4 et le README.
+variables sont en place, le formulaire et le compteur GoatCounter (`skyblog-cointroh`) sont en
+ligne. Les actions restantes (recette visuelle complète, adresse de contact RGPD) sont suivies dans
+le `BACKLOG.md` §4 et le README.

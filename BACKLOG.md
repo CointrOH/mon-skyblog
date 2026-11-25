@@ -53,7 +53,7 @@ Contraintes :
 | **P3-T1** | Worker commentaires : API D1/Turnstile, migrations, tests, workflow de déploiement. | P3 | Code prêt (revue OK) | Développeur backend | `GET`/`POST`/`DELETE`, CORS, validation, Turnstile, rate limit, cron de purge RGPD, tests `node --test` 20/20, aucun secret. |
 | **P3-T2** | Frontend commentaires : formulaire anonyme, liste, Turnstile, CSP, pages article + `/livre-d-or/`. | P3 | Code prêt (revue OK) | Développeur frontend + Artiste | Pseudo + message, publication immédiate, fallback si API non configurée, a11y, aucun `innerHTML` visiteur, Turnstile compact. |
 | **P3-T3** | Mise en service Cloudflare : D1 UE, Turnstile, secrets, variables GitHub, déploiement Worker. | P3 | Fait (test navigateur OK) | PO + propriétaire | Worker déployé, D1 migrée, secrets et variables définis, formulaire en ligne, publication testée. |
-| **P2-T1** | Compteur GoatCounter réel, remplaçant le `1337` factice ; script global site-wide. | P2 | Code prêt — site GoatCounter à configurer | Développeur + Artiste | Chiffre réel ; fallback si non configuré/indisponible ; pas de CLS ; label cache 4 h ; `PUBLIC_GOATCOUNTER_CODE`. |
+| **P2-T1** | Compteur GoatCounter réel, remplaçant le `1337` factice ; script global site-wide. | P2 | Fait (compteur actif) | Développeur + Artiste | Site `skyblog-cointroh` activé, `count.js` global, widget accueil, cache 4 h documenté. |
 | **P4-T1** | Page `/confidentialite/` + lien footer + règles de modération. | P4 | Code prêt — contact email à créer | Développeur + Artiste | Données commentaires, Cloudflare/D1, durées, droits, contact ; lien dans le footer. |
 | **P4-T2** | Documentation : README, PLAN, guide Worker, GoatCounter, exceptions JS/réseau. | P4 | Fait (revue OK) | PO + Développeur | Docs alignées sur le comportement réel ; setup reproductible. |
 | **P5-T1** | Flux RSS. | P5 | À faire | Développeur | `/rss.xml` valide, `<link rel="alternate">`, aucun JS. |
@@ -78,10 +78,8 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 - [x] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message, rate limit.
 - [x] **Régénérer les secrets exposés dans le chat** (token API Cloudflare, secret Turnstile) : rotation
       effectuée et service revérifié.
-- [ ] **Créer le site GoatCounter** (code public, ex. `mon-skyblog`), activer « Allow adding
-      visitor counts on your website », désactiver les collectes optionnelles (navigateur, écran,
-      localisation), puis ajouter la variable de dépôt `GOATCOUNTER_CODE`
-      (Settings → Secrets and variables → Actions → Variables).
+- [x] **Site GoatCounter** `skyblog-cointroh` activé, compteur public autorisé, collectes
+      optionnelles désactivées, variable `GOATCOUNTER_CODE` définie et site redéployé.
 - [ ] **Créer l'adresse email de contact** pour les demandes RGPD et la renseigner dans
       `src/config/site.ts` (`contactEmail`).
 - [ ] Décider si les **URLs externes** de GIF sont autorisées dans la galerie (upload seul pour l'instant).
@@ -101,6 +99,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | Commit `64e003d`, push sur `main`, déploiement Pages **réussi**. |
 | 25/11/2026 | Configuration Cloudflare effectuée : D1 `mon-skyblog-comments-eu` en EEUR, Worker déployé, secrets `TURNSTILE_SECRET`/`ADMIN_TOKEN`, variables GitHub, `COMMENTS_API` défini, Pages redéployé ; formulaire live. |
 | 25/11/2026 | Recette navigateur validée par le propriétaire et rotation des secrets exposés effectuée. Commentaires anonymes pleinement opérationnels. |
+| 25/11/2026 | GoatCounter `skyblog-cointroh` activé et redéployé : `count.js` global, widget accueil, endpoint `TOTAL.json` à 200. |
 | 25/11/2026 | Équipe nommée : **Arthas** (Product Owner), **Thrall** (Développeur), **Jaina** (Artiste / Dev Front). |
 
 ## 6. Règles de travail
