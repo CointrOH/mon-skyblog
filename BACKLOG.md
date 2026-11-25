@@ -87,6 +87,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | **Giscus retiré** : le propriétaire refuse le compte GitHub obligatoire. Commentaires momentanément fermés ; aucune solution de remplacement codée sans accord (D-09). Discussions GitHub désactivées (aucune discussion créée). |
 | 25/11/2026 | **D-09 acceptée** : Worker Cloudflare + D1 + Turnstile, GitHub Actions, pseudo + message, Turnstile interaction-only, conservation jusqu'à suppression. Implémentation backend/frontend en cours. |
 | 25/11/2026 | Worker, migrations, tests (20/20), cron de purge RGPD des hashes d'IP, formulaire frontend, CSP, confidentialité et docs livrés et revus. Restent la création des ressources Cloudflare et la recette navigateur. |
+| 25/11/2026 | Commit `64e003d`, push sur `main`, déploiement Pages **réussi** ; le site affiche le placeholder de commentaires tant que les ressources Cloudflare ne sont pas créées. Le workflow Worker reste manuel. |
 
 ## 6. Règles de travail
 
