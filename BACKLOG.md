@@ -3,6 +3,17 @@
 > Document vivant de pilotage. La source de vérité du contenu reste le dépôt Git.
 > Dernière mise à jour : **25/11/2026** — décisions de cadrage validées par le propriétaire.
 
+## Équipe
+
+| Nom | Fonction |
+|---|---|
+| **Arthas** | **(Product Owner / orchestrateur)** — cadrage, priorisation, specs, délégation, revue de code et de rendu, tenue du BACKLOG. |
+| **Thrall** | **(Développeur)** — fonctionnel Astro/Worker/D1, CI, sécurité, tests, documentation technique. |
+| **Jaina** | **(Artiste / Dev Front)** — direction artistique rétro, CSS/UX, accessibilité, performance, cohérence visuelle. |
+
+Les noms ci-dessus sont utilisés dans les specs, les délégations et les comptes rendus. Le PO ne
+code pas : Thrall et Jaina implémentent, Arthas relit et valide.
+
 ## 1. Vision et contraintes
 
 Journal rétro « Skyblog 1990-2000 » statique, édité via Decap CMS, déployé sur GitHub Pages.
@@ -88,6 +99,7 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | **D-09 acceptée** : Worker Cloudflare + D1 + Turnstile, GitHub Actions, pseudo + message, Turnstile interaction-only, conservation jusqu'à suppression. Implémentation backend/frontend en cours. |
 | 25/11/2026 | Worker, migrations, tests (20/20), cron de purge RGPD des hashes d'IP, formulaire frontend, CSP, confidentialité et docs livrés et revus. Restent la création des ressources Cloudflare et la recette navigateur. |
 | 25/11/2026 | Commit `64e003d`, push sur `main`, déploiement Pages **réussi** ; le site affiche le placeholder de commentaires tant que les ressources Cloudflare ne sont pas créées. Le workflow Worker reste manuel. |
+| 25/11/2026 | Équipe nommée : **Arthas** (Product Owner), **Thrall** (Développeur), **Jaina** (Artiste / Dev Front). |
 
 ## 6. Règles de travail
 
