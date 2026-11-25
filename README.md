@@ -520,14 +520,15 @@ loader. Cette migration est fonctionnellement neutre pour le thème et le CMS.
       (Settings → Secrets and variables → Actions → Variables) ;
 - [ ] **Créer l'adresse email de contact RGPD** et la renseigner dans `src/config/site.ts`
       (`contactEmail`), puis redéployer ;
-- [ ] **Déployer le Worker de commentaires** : créer la base D1 en UE et le widget Turnstile,
-      définir les secrets Cloudflare `TURNSTILE_SECRET` / `ADMIN_TOKEN`, les secrets GitHub
-      `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` et la variable `D1_DATABASE_ID`, puis
-      suivre [`worker/README.md`](worker/README.md) et lancer le workflow manuel
-      `Deploy comments Worker` ; définir enfin `COMMENTS_API` et `TURNSTILE_SITE_KEY` ;
-- [ ] Tester en navigateur : `/livre-d-or/` (formulaire anonyme + Turnstile, ou placeholder si les
-      variables sont absentes), publication et affichage d'un message, compteur, `/galerie/`
-      (masquage + `prefers-reduced-motion`), `/confidentialite/`.
+- [x] **Worker de commentaires déployé** : D1 `mon-skyblog-comments-eu` en UE, widget Turnstile,
+      secrets Cloudflare `TURNSTILE_SECRET` / `ADMIN_TOKEN`, secrets GitHub
+      `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`, variable `D1_DATABASE_ID`, workflow
+      `Deploy comments Worker`, puis `COMMENTS_API` et `TURNSTILE_SITE_KEY` ;
+- [ ] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message,
+      limitation de débit, `/livre-d-or/`, `/galerie/` et `/confidentialite/` ;
+- [ ] **Régénérer le token API Cloudflare et le secret Turnstile** exposés dans le chat, puis
+      mettre à jour GitHub/Cloudflare ;
+- [ ] Tester le compteur GoatCounter après création du site.
 
 **À vérifier côté navigateur** :
 

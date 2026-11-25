@@ -205,5 +205,7 @@ Les secrets Cloudflare (`TURNSTILE_SECRET`, `ADMIN_TOKEN`) et le binding D1 vive
 Cloudflare et ne sont jamais committés. Le composant `Comments` n'émet aucune requête et n'affiche
 aucun formulaire tant que `COMMENTS_API` et `TURNSTILE_SITE_KEY` ne sont pas définies.
 
-Les actions humaines restantes (déploiement du Worker et de la base D1, création du site GoatCounter,
-adresse de contact RGPD, recette navigateur) sont suivies dans le `BACKLOG.md` §4 et le README.
+Le Worker et la base D1 (`mon-skyblog-comments-eu`, région EEUR) sont déployés, les secrets et
+variables sont en place et le formulaire est en ligne. Les actions restantes (recette navigateur,
+rotation des secrets exposés dans le chat, site GoatCounter, adresse de contact RGPD) sont suivies
+dans le `BACKLOG.md` §4 et le README.

@@ -52,7 +52,7 @@ Contraintes :
 | **P1-T2** | Galerie de GIF admin-only : collection Decap, page `/galerie/`, grille, masquage accessible, état vide. | P1 | Fait (revue OK) | Développeur + Artiste | Upload via `/admin/` visible sur `/galerie/` ; GIFs masquables ; `prefers-reduced-motion` ; responsive ; build OK. |
 | **P3-T1** | Worker commentaires : API D1/Turnstile, migrations, tests, workflow de déploiement. | P3 | Code prêt (revue OK) | Développeur backend | `GET`/`POST`/`DELETE`, CORS, validation, Turnstile, rate limit, cron de purge RGPD, tests `node --test` 20/20, aucun secret. |
 | **P3-T2** | Frontend commentaires : formulaire anonyme, liste, Turnstile, CSP, pages article + `/livre-d-or/`. | P3 | Code prêt (revue OK) | Développeur frontend + Artiste | Pseudo + message, publication immédiate, fallback si API non configurée, a11y, aucun `innerHTML` visiteur, Turnstile compact. |
-| **P3-T3** | Mise en service Cloudflare : D1 UE, Turnstile, secrets, variables GitHub, déploiement Worker. | P3 | En attente des ressources propriétaire | PO + propriétaire | Worker déployé, `COMMENTS_API` + `TURNSTILE_SITE_KEY` définis, test navigateur réel. |
+| **P3-T3** | Mise en service Cloudflare : D1 UE, Turnstile, secrets, variables GitHub, déploiement Worker. | P3 | Fait — test navigateur restant | PO + propriétaire | Worker déployé, D1 migrée, secrets et variables définis, formulaire en ligne. |
 | **P2-T1** | Compteur GoatCounter réel, remplaçant le `1337` factice ; script global site-wide. | P2 | Code prêt — site GoatCounter à configurer | Développeur + Artiste | Chiffre réel ; fallback si non configuré/indisponible ; pas de CLS ; label cache 4 h ; `PUBLIC_GOATCOUNTER_CODE`. |
 | **P4-T1** | Page `/confidentialite/` + lien footer + règles de modération. | P4 | Code prêt — contact email à créer | Développeur + Artiste | Données commentaires, Cloudflare/D1, durées, droits, contact ; lien dans le footer. |
 | **P4-T2** | Documentation : README, PLAN, guide Worker, GoatCounter, exceptions JS/réseau. | P4 | Fait (revue OK) | PO + Développeur | Docs alignées sur le comportement réel ; setup reproductible. |
@@ -71,13 +71,13 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 
 ## 4. Questions ouvertes / actions humaines
 
-- [ ] **Créer les ressources Cloudflare** (D-09) : base D1 `mon-skyblog-comments-eu` en UE, widget
-      Turnstile, token API Cloudflare (Workers Scripts:Edit + D1:Edit), secrets Worker
-      `TURNSTILE_SECRET` et `ADMIN_TOKEN`.
-- [ ] **Renseigner les secrets/variables GitHub** : `CLOUDFLARE_API_TOKEN`,
-      `CLOUDFLARE_ACCOUNT_ID` (secrets) ; `COMMENTS_API`, `TURNSTILE_SITE_KEY` (variables).
-- [ ] **Renseigner la variable GitHub `D1_DATABASE_ID`** (le workflow l'injecte dans
-      `worker/wrangler.toml`) puis lancer **Actions → Deploy comments Worker**.
+- [x] **Ressources Cloudflare** : D1 `mon-skyblog-comments-eu` (EEUR), Worker
+      `mon-skyblog-comments`, widget Turnstile, secrets `TURNSTILE_SECRET` et `ADMIN_TOKEN`.
+- [x] **Secrets/variables GitHub** : `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+      `COMMENTS_API`, `TURNSTILE_SITE_KEY`, `D1_DATABASE_ID` ; Worker déployé et formulaire en ligne.
+- [ ] **Tester en navigateur** : publication réelle avec Turnstile, affichage du message, rate limit.
+- [ ] **Régénérer les secrets exposés dans le chat** (token API Cloudflare, secret Turnstile) après la
+      recette, puis mettre à jour GitHub/Cloudflare.
 - [ ] **Créer le site GoatCounter** (code public, ex. `mon-skyblog`), activer « Allow adding
       visitor counts on your website », désactiver les collectes optionnelles (navigateur, écran,
       localisation), puis ajouter la variable de dépôt `GOATCOUNTER_CODE`
@@ -98,7 +98,8 @@ Plus de code et de maintenance (D1, déploiement, rate limit, RGPD). À activer 
 | 25/11/2026 | **Giscus retiré** : le propriétaire refuse le compte GitHub obligatoire. Commentaires momentanément fermés ; aucune solution de remplacement codée sans accord (D-09). Discussions GitHub désactivées (aucune discussion créée). |
 | 25/11/2026 | **D-09 acceptée** : Worker Cloudflare + D1 + Turnstile, GitHub Actions, pseudo + message, Turnstile interaction-only, conservation jusqu'à suppression. Implémentation backend/frontend en cours. |
 | 25/11/2026 | Worker, migrations, tests (20/20), cron de purge RGPD des hashes d'IP, formulaire frontend, CSP, confidentialité et docs livrés et revus. Restent la création des ressources Cloudflare et la recette navigateur. |
-| 25/11/2026 | Commit `64e003d`, push sur `main`, déploiement Pages **réussi** ; le site affiche le placeholder de commentaires tant que les ressources Cloudflare ne sont pas créées. Le workflow Worker reste manuel. |
+| 25/11/2026 | Commit `64e003d`, push sur `main`, déploiement Pages **réussi**. |
+| 25/11/2026 | Configuration Cloudflare effectuée : D1 `mon-skyblog-comments-eu` en EEUR, Worker déployé, secrets `TURNSTILE_SECRET`/`ADMIN_TOKEN`, variables GitHub, `COMMENTS_API` défini, Pages redéployé ; formulaire live. Test navigateur et rotation des secrets exposés restants. |
 | 25/11/2026 | Équipe nommée : **Arthas** (Product Owner), **Thrall** (Développeur), **Jaina** (Artiste / Dev Front). |
 
 ## 6. Règles de travail
